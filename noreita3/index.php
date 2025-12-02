@@ -85,7 +85,7 @@ check_file(__DIR__.'/lib/lightbox/js/lightbox.min.js');
 check_file(__DIR__.'/lib/lightbox/css/lightbox.min.css');
 
 //テンプレート
-$skindir='template/'.$skindir;
+$skindir='theme/'.$skindir;
 
 if(!$max_log){
 	error($en ? 'The maximum number of threads has not been set.' : '最大スレッド数が設定されていません。');
@@ -150,7 +150,6 @@ $httpsonly = (bool)($_SERVER['HTTPS'] ?? '');
 //user-codeの発行
 $usercode = t(filter_input_data('COOKIE', 'usercode'));//user-codeを取得
 
-//セッション開始
 session_sta();
 $session_usercode = $_SESSION['usercode'] ?? "";
 $session_usercode = t($session_usercode);
@@ -2348,7 +2347,7 @@ function view(): void {
 	}
 	fclose($fp);
 
-	$index_cache_json = __DIR__.'/template/cache/index_cache.json';
+	$index_cache_json = __DIR__.'/theme/cache/index_cache.json';
 
 	$out=[];
 	if($page===0 && !$admindel && !$userdel && !$adminpost && !$is_badhost){
