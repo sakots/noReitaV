@@ -13,11 +13,11 @@ $admin_pass = "admin_pass";
 $second_pass = "rNuQc5WYDvrrfSaN";
 
 // この掲示板の名前
-$boardname = "noReitaV お絵かき掲示板";
+$board_name = "noReitaV お絵かき掲示板";
 
 // 掲示板からの戻り先のホームページの名前
 // 空欄なら｢ホーム｣と表示されます。
-$sitename = "";
+$site_name = "";
 
 // ホームページ(掲示板からの戻り先)
 $home = "./"; //相対パス、絶対パス、URLどれでもOK
@@ -55,14 +55,14 @@ $max_com=1000;
 // ダークモードを使用する
 // する: true しない: false
 
-$use_darkmode = true;
-// $use_darkmode = false;
+$use_dark_mode = true;
+// $use_dark_mode = false;
 
 // デフォルトの表示をダークモードにする
 // する: true しない: false
 
-// $darkmode_by_default = true;
-$darkmode_by_default = false;
+// $dark_mode_by_default = true;
+$dark_mode_by_default = false;
 
 /*-----絶対に変更が必要な項目ここまで-----*/
 
@@ -110,31 +110,31 @@ $to_mail = "example@example.com";
 
 /*スパム対策*/
 // 本文に日本語がなければ拒絶 する:true しない:false
-$use_japanesefilter = true;
-// $use_japanesefilter=false;
+$use_japanese_filter = true;
+// $use_japanese_filter=false;
 
 // 拒絶する文字列 正規表現
 // 設定しないなら[]で。
 // 管理者は設定に関わらず投稿可能
-$badstring = ["example.example.com","未承諾広告"];
+$bad_string = ["example.example.com","未承諾広告"];
 
 // 拒絶するurl
 // 管理者は設定に関わらず投稿可能
-$badurl = ["example.com","www.example.com"];
+$bad_url = ["example.com","www.example.com"];
 
 // 使用できない名前 正規表現
 // 管理者は設定に関わらず投稿可能
-$badname = ["管理人","ブランド","通販","販売","口コミ"];
+$bad_name = ["管理人","ブランド","通販","販売","口コミ"];
 // 使用出来ない名前に管理者の名前を追加する事を強く推奨します。
 // 管理者へのなりすましを防止できます。
 
 // AとBが両方あったら拒絶 正規表現
 // 管理者は設定に関わらず投稿可能
-$badstr_A = ["激安","低価","コピー","品質を?重視","大量入荷"];
-$badstr_B = ["シャネル","シュプリーム","バレンシアガ","ブランド"];
+$bad_str_A = ["激安","低価","コピー","品質を?重視","大量入荷"];
+$bad_str_B = ["シャネル","シュプリーム","バレンシアガ","ブランド"];
 
 // 禁止ホスト
-$badhost =["example.com","example.org"];
+$bad_host =["example.com","example.org"];
 
 //ホスト名が逆引きできないIPアドレスからの投稿を拒絶する
 // する: true しない: false
@@ -147,8 +147,8 @@ $reject_if_no_reverse_dns = false;
 //禁止ホストからのアクセスがあった時は、SESSIONにキャッシュする
 // する: true しない: false
 
-// $use_badhost_session_cache = true;
-$use_badhost_session_cache = false;
+// $use_bad_host_session_cache = true;
+$use_bad_host_session_cache = false;
 
 // ※禁止ホスト判定をセッションに保存します。
 // 禁止ホスト判定されるとブラウザを再起動するまで解除されません。
@@ -160,22 +160,18 @@ $use_badhost_session_cache = false;
 // 表示する:true 表示しない:false
 
 $display_link_back_to_home = true;
-// $display_link_back_to_home = false;
 
 // PaintBBS NEOを使う
 // 使う:true 使わない:false
 
-$use_paintbbs_neo= true;
-// $use_paintbbs_neo= false;
+$use_paintbbs_neo = true;
 
 // Tegakiを使う
 // 使う:true 使わない:false
 
-$use_tegaki= true;
-// $use_tegaki= false;
+$use_tegaki = true;
 
 // Axnos Paintを使う
-// 使う:true 使わない:false
 
 $use_axnos = true;
 // $use_axnos = false;
@@ -183,14 +179,12 @@ $use_axnos = true;
 // litaChitを使う
 // 使う:true 使わない:false
 
-$use_chickenpaint= true;
-// $use_chickenpaint= false;
+$use_chickenpaint = true;
 
 // Klecksを使う
 // 使う:true 使わない:false
 
-$use_klecs= true;
-// $use_klecs= false;
+$use_klecs = true;
 
 // 本文へのURLの書き込みを許可する
 // URLを書き込むスパムを排除する時は しない: false
@@ -299,15 +293,15 @@ $set_all_images_to_nsfw = false;
 // する: trueで投稿時にペイント時間の表示/非表示を切り替える事ができるようになります。
 // する: true しない: false
 
-// $use_hide_painttime = true;
-$use_hide_painttime = false;
+// $use_hide_paint_time = true;
+$use_hide_paint_time = false;
 
 // すべての描画時間を非表示にする
 // する: trueですべての投稿のペイント時間を非表示にします。
 // 管理者は設定に関わらずペイント時間を表示できます。
 
-// $all_hide_painttime = true;
-$all_hide_painttime = false;
+// $all_hide_paint_time = true;
+$all_hide_paint_time = false;
 
 // ユーザーIDを非表示にする
 // する: trueですべての投稿のユーザーIDを非表示にします。
@@ -336,8 +330,8 @@ $sage_all = false;
 // 管理者モードでログイン、またはパスワード一致の時に管理者と判定します。
 // する: true しない: false
 
-$verified_adminpost = true;
-// $verified_adminpost = false;
+$verified_admin_post = true;
+// $verified_admin_post = false;
 
 // レス画面に前後のスレッドの画像を表示する する:1 しない:0
 // する: true しない: false
@@ -370,7 +364,7 @@ $sort_comments_by_newest = false;
 
 //1ページに表示するスレッド数
 
-$pagedef = 10;
+$page_def = 10;
 
 // 1スレッドに返信できるレスの数
 // 管理者による投稿はこの制限を受けません。
@@ -381,7 +375,7 @@ $max_res = 100;
 // 返信画面では全て表示します。
 // 設定しないなら 0 で。
 
-$dispres= 10;
+$display_res = 10;
 
 // 1スレッドに表示するレス画像の数
 // 表示できるレス画像の設定値を超えた時は、レスを省略します。
@@ -389,12 +383,12 @@ $dispres= 10;
 // 返信画面では全て表示します。
 // 設定しないなら 0 で。
 
-$disp_image_res= 5;
+$display_image_res = 5;
 
 // カタログモード時の1ページあたりの表示件数
 // 20の倍数で設定すると画面にきれいにおさまります。
 
-$catalog_pagedef = 60;
+$catalog_page_def = 60;
 
 /*画像関連*/
 
@@ -410,18 +404,18 @@ $max_px = 1024;
 // お絵かきできる幅と高さのデフォルトサイズ
 // 前回使用時の値がCookieに存在する時は、Cookieの値が使用されます。
 
-$pdef_w = 300;//幅
-$pdef_h = 300;//高さ
+$p_def_w = 300;//幅
+$p_def_h = 300;//高さ
 
 // お絵かきできる幅と高さの最小サイズ
 
-$pmin_w = 300;//幅
-$pmin_h = 300;//高さ
+$p_min_w = 300;//幅
+$p_min_h = 300;//高さ
 
 // お絵かきできる幅と高さの最大サイズ
 
-$pmax_w = 800;//幅
-$pmax_h = 800;//高さ
+$p_max_w = 800;//幅
+$p_max_h = 800;//高さ
 
 // プルダウンメニューのキャンバスサイズの増減値
 
@@ -493,10 +487,10 @@ $display_search_nav = false;
 $max_search = 300;
 
 // 画像検索の時の1ページあたりの表示件数
-$search_images_pagedef = 60;
+$search_images_page_default = 60;
 
 // 通常検索の時の1ページあたりの表示件数
-$search_comments_pagedef = 30;
+$search_comments_page_default = 30;
 
 /*セキュリティ*/
 
@@ -530,7 +524,7 @@ $security_timer = 0;
 // 日数による制限をしない時は 0 。
 // 管理者投稿はこの制限を受けません。
 
-$elapsed_days=180;
+$elapsed_days = 180;
 
 // すべての投稿を拒否する
 // 管理人長期不在、展示のみなど。
@@ -548,7 +542,7 @@ date_default_timezone_set("asia/tokyo");
 // iframe内での表示を 拒否する:true 許可する:false
 // セキュリティリスクを回避するため "拒否する:true" を強く推奨。
 
-$x_frame_options_deny=true;
+$x_frame_options_deny = true;
 // $x_frame_options_deny=false;
 
 // SNSシェア機能詳細設定
