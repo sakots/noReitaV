@@ -651,3 +651,4 @@ define("IMG_DIR","img/");
 // 画像
 define("THUMB_DIR","thumbnail/");
 
+$config_ver = 20251202;
