@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+<title><?=h($boardname)?></title> 
+</head>
+<body>
+
+<div class="container" id="top">
+
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<nav class="menu_wrap">
+<?php include __DIR__.'/parts/before_edit_nav_menu.html';?>
+<a href="#bottom">▽</a>
+	</nav>
+
+	<h2 class="article_title"><?php if($en):?>Editing an article<?php else:?>記事編集中<?php endif;?></h2>
+
+<hr>
+<?php include __DIR__.'/parts/edit_form_res_loop.html'?>
+			<div class="clear"></div>
+
+	<form action="./" method="POST" enctype="multipart/form-data" class="resform" id="res_form" onsubmit="return res_form_submit(event)">
+	<div id="error_message"></div>
+	<table class="resform">
+	<tr>
+		<td><?php if($en):?>Name<?php else:?>名前<?php endif;?></td>
+		<td>:</td>
+		<td><input type="text" name="name" value="<?=h($name)?>" autocomplete="username" class="input_txt"></td>
+	</tr>
+	<?php if($oya==='oya'):?>
+		<!-- レスの時は題名を出さない -->
+		<tr>
+			<td><?php if($en):?>Subject<?php else:?>題名<?php endif;?></td>
+			<td>:</td>
+			<td><input type="text" name="sub" value="<?=h($sub)?>" autocomplete="off" class="input_txt"></td>
+		</tr>
+	<?php endif;?>
+	<?php if($admin||$use_url_input_field):?>
+		<tr>
+			<td>URL</td>
+			<td>:</td>
+			<td><input type="text" name="url" value="<?=h($url)?>" autocomplete="off" class="input_txt"></td>
+		</tr>
+	<?php endif;?>
+</table>
+<textarea name="com" class="post_com"><?=h($com)?></textarea><br>
+<input type="hidden" name="pwd" value="<?=h($pwd)?>">
+<input type="hidden" name="id" value="<?=h($time)?>">
+<input type="hidden" name="no" value="<?=h($no)?>">
+<input type="hidden" name="mode" value="edit">
+<input type="hidden" name="token" value="<?=h($token)?>">
+<?php if($pch_exists):?>
+<input type="checkbox" name="hide_animation" id="hide_animation" value="on" <?php if($hide_animation_checkd):?>checked="checked"<?php endif;?>><label for="hide_animation"><?php if($en):?>Hide Animation<?php else:?>動画を表示しない<?php endif;?></label>	
+<?php endif;?>
+<?php if($imgfile && $mark_sensitive_image):?>
+<input type="checkbox" name="hide_thumbnail" id="hide_thumbnail" value="on" <?php if($hide_thumb_checkd):?>checked="checked"<?php endif;?>><label for="hide_thumbnail"><?php if($en):?>Sensitive content<?php else:?>閲覧注意にする<?php endif;?></label>
+<script>const paintcom = true;</script>
+<?php endif;?>
+<input type="submit" value="<?php if($en):?>Edit<?php else:?>編集<?php endif;?>" class="form_button" id="form_submit">
+</form>
+
+<hr>
+	<div class="copy">
+		<div class="left_wrap">
+		<?php include __DIR__.'/parts/admin_login_link.html';?>
+		</div>
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>

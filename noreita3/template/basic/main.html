@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+<title><?=h($boardname)?></title> 
+</head>
+<body>
+
+<div class="container" id="top">
+
+<!-- 閲覧注意警告 -->
+<?php include __DIR__.'/parts/form_view_nsfw.html'?>
+
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<!-- ナビゲーション -->
+<nav class="menu_wrap">
+	<?php if($display_link_back_to_home):?>
+		<?php if(isset($sitename) && $sitename):?>
+		<span>[<a href="<?=h($home)?>"><?=h($sitename)?></a>]</span>
+		<?php else:?>
+		<span>[<a href="<?=h($home)?>"><?php if($en):?>Home<?php else:?>ホーム<?php endif;?></a>]</span>
+		<?php endif;?>
+	<?php endif;?>
+		<span>[<a href="./?mode=catalog"><?php if($en):?>Catalog<?php else:?>カタログ<?php endif;?></a>]</span>
+	<?php if($display_search_nav):?>
+		<span> [<a href="./?mode=search&radio=3"><?php if($en):?>Search<?php else:?>検索<?php endif;?></a>]</span>
+	<?php endif;?>
+<?php if($aikotoba):?>
+	<?php if($use_paint):?>
+		<span> [<a href="./?mode=paintcom" rel="nofollow"><?php if($en):?>Recover Images<?php else:?>未投稿画像<?php endif;?></a>]</span>
+	<?php endif;?>
+	<span>
+	<?php if($userdel || $admindel):?>
+			[<a href="./?mode=logout" rel="nofollow"><?php if($en):?>Exit edit mode<?php else:?>編集モード終了<?php endif;?></a>]
+	<?php elseif(!$is_badhost):?>
+		[<a href="./?mode=userdel" rel="nofollow"><?php if($en):?>Edit<?php else:?>編集<?php endif;?></a>]
+	<?php endif;?>
+<?php endif;?>
+	<a href="#bottom">▽</a>
+<?php if($aikotoba):?>
+	</span>
+<?php endif;?>
+</nav>
+<?php if($userdel||$admindel||(isset($mark_sensitive_image) && $mark_sensitive_image||isset($set_all_images_to_nsfw) && $set_all_images_to_nsfw)):?>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+<?php endif;?>
+<?php if($aikotoba && !$userdel && !$admindel && !$is_badhost):?>
+<!-- 掲示板の説明文 -->
+<?php if(!empty($descriptions)):?>
+<div class="description">
+<ul>
+<?php foreach($descriptions as $description):?>
+	<li><?=h($description)?></li>
+	<?php endforeach;?>
+</ul>
+</div>
+<?php endif;?>
+<?php if((!$use_diary || $adminpost) && !$deny_all_posts):?>
+<div class="mainform">
+
+<?php if($use_paint):?>
+<!-- ペイントフォーム -->
+<form action="./" method="post" enctype="multipart/form-data" class="paint_form" id="paint_forme" onsubmit="return res_form_submit(event,'paint_forme')">
+	<div id="error_message_paintform"></div>
+
+	<?php if($adminpost):?>
+	<span>
+	<input type="file" name="pchup" size="35" accept="image/*,.pch,.chi,.psd" class="pchup_button"><button type="button" class="pchup_button" id="remove_pch_attachment_btn" style="display: none;"><?php if($en):?>Remove<?php else:?>選択解除<?php endif;?></button>
+	</span>
+	<br>
+	<?php endif;?>
+<input type="hidden" name="mode" value="paint">
+<input type="hidden" name="MAX_FILE_SIZE" value="<?php if(isset($upload_max_filesize)):?><?=h($upload_max_filesize)?><?php endif;?>">
+<input type="submit" value="Paint" class="paint_button">
+
+<?php if($select_app):?>
+<span>Tool:
+<select name="app" class="select_applet">
+<!-- ペイントアプリ選択のプルダウンメニューをインクルード -->
+<?php include __DIR__.'/parts/select_apps.html'?>
+</select>
+</span>
+<?php else:?>
+<input type="hidden" name="app" value="<?=h($app_to_use)?>">
+<?php endif;?>
+
+<span class="canvas_size_wrap"> 
+Size:
+<?php include __DIR__."/parts/select_canvas_size.html"?>
+</span>
+</form>
+<?php endif;?>
+<!-- フォーム入力欄 -->
+	<?php if(($use_upload||$allow_comments_only)||$adminpost):?>
+	<form action="./" method="POST" enctype="multipart/form-data" class="postform" id="res_form" onsubmit="return res_form_submit(event)">
+	<div id="error_message"></div>
+	<table>
+	<tr>
+		<td><?php if($en):?>Name<?php else:?>名前<?php endif;?></td>
+		<td>:</td>
+		<td><input type="text" name="name" value="<?=h($namec)?>" autocomplete="username" class="input_txt"></td>
+
+	</tr>
+	<tr>
+		<td><?php if($en):?>Subject<?php else:?>題名<?php endif;?></td>
+		<td>:</td>
+		<td><input type="text" name="sub" autocomplete="off" class="input_txt"></td>
+	</tr>
+	<?php if($adminpost||$use_url_input_field):?>
+	<tr>
+		<td>URL</td>
+		<td>:</td>
+		<td><input type="text" name="url" value="<?=h($urlc)?>" autocomplete="off" class="input_txt"></td>
+	</tr>
+	<?php endif;?>
+	</table>
+<?php if($use_upload || $adminpost):?>
+<input type="hidden" name="MAX_FILE_SIZE" value="<?=h($max_byte)?>">
+<input type="file" name="imgfile" size="35" accept="image/*" class="form_button" id="attach_image"><button type="button" class="form_button" id="remove_attachment_btn" style="display: none;"><?php if($en):?>Remove<?php else:?>選択解除<?php endif;?></button>
+<br>
+<?php endif;?>
+<div style="display:flex;" class="attach_preview_wrap">
+<img id="attach_preview" style="max-width:200px;max-height:125px;height:fit-content;display:none;" alt="preview">
+<textarea name="com" class="post_com"></textarea>
+</div>
+<?php if($en):?>Password:<?php else:?>パスワード:<?php endif;?><input type="password" name="pwd" value="<?=h($pwdc)?>" autocomplete="current-password" minlength="6" class="res_pwd">
+<input type="hidden" name="mode" value="regist">
+<input type="hidden" name="token" value="<?=h($token)?>">
+<br>
+<?php if($mark_sensitive_image):?>
+<span class="nsfw" id="check_nsfw">
+	<input type="checkbox" name="hide_thumbnail" id="hide_thumbnail" <?php if($nsfw_checked):?>checked="checked"<?php endif;?>><label for="hide_thumbnail"><?php if($en):?>Sensitive content<?php else:?>閲覧注意にする<?php endif;?></label>
+	</span>
+<?php endif;?>
+<input type="submit" value="<?php if($en):?>Start a new thread<?php else:?>スレッドを立てる<?php endif;?>" class="form_button" id="form_submit">
+</form>
+<?php endif;?>
+</div>
+<?php endif;?>
+<?php endif;?>
+<!-- 合言葉認証 -->
+<?php include __DIR__.'/parts/form_aikotoba.html'?>
+
+<hr>
+<!-- スレッド -->
+	<!-- 親のループ -->
+<?php if(isset($out)):?>
+	<?php include __DIR__.'/parts/threads_loop.html'?>
+<?php endif;?>
+<nav>
+	<?php include __DIR__.'/parts/prev_next.html';?>
+	<?php include __DIR__.'/parts/paging.html';?>
+</nav>
+	<div class="copy">
+		<div class="left_wrap">
+		<?php include __DIR__.'/parts/admin_login_link.html';?>
+	</div>
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>

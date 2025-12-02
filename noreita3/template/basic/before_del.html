@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+	<title><?=h($boardname)?></title> 
+</head>
+<body>
+<div class="container" id="top">
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<nav class="menu_wrap">
+	<?php include __DIR__.'/parts/before_edit_nav_menu.html';?>
+	<a href="#bottom">▽</a>
+</nav>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+<h2 class="article_title"><?php if($en):?>You are trying to delete an article. Are you sure you want to delete this?<?php else:?>記事を削除しようとしています。本当に削除しますか?<?php endif;?></h2>
+
+<div id="error_message_beforedelete"></div>
+<?php if( $admindel || $userdel):?>
+<?php if($admindel):?>
+	<?php if($en):?>Check the article you want to delete and press the delete button.<?php else:?>削除したい記事をチェックして削除ボタンを押してください。<?php endif;?>: 
+<?php endif;?>
+
+<?php if($userdel&&!$admindel):?>
+	<?php if($en):?>Check the article you want to delete and enter the password.<?php else:?>削除したい記事をチェックしてパスワードを入力してください。<?php endif;?>: 
+
+<?php endif;?>
+<form action="./" method="POST" id="before_delete" class="aikotoba" onsubmit="return res_form_submit(event,'before_delete')">
+<?php if(!$admindel):?>
+	<span class="non"><input type="text" value="" autocomplete="username"></span>
+	<input type="password" name="pwd" value="<?=h($pwdc)?>" autocomplete="current-password">
+<?php endif;?>
+<input type="hidden" name="mode" value="del">
+<input type="hidden" name="token" value="<?=h($token)?>">
+<?php if($oya==='oya' && $count_r_arr>1 && $admindel):?>
+	<input type="checkbox" name="delete_thread" id="delete_thread" value="on"><label for="delete_thread"><?php if($en):?>Delete thread<?php else:?>スレッドを削除する<?php endif;?></label>
+<?php endif;?>
+<input type="submit" value="<?php if($en):?>Delete<?php else:?>削除<?php endif;?>" class="delete_button">
+</form>
+<?php endif;?>
+
+<hr>
+<?php include __DIR__.'/parts/before_edit_del_res_loop.html';?>
+<div class="clear"></div>
+<hr>
+<div class="copy">
+<div class="left_wrap">
+<?php include __DIR__.'/parts/admin_login_link.html';?>
+</div>
+
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>
+	

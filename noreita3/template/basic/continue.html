@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+	<title><?=h($boardname)?></title> 
+<style>
+/* index.cssを更新しない人がいるかもしれないためインラインでも記述 */
+#span_cont_paint_same_thread {
+	display: none;
+}
+<?php if(!$pch_exists):?>
+#span_hide_animation{
+	display: none;
+}
+<?php endif;?>
+</style>
+</head>
+<div class="container">
+	<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+	<nav class="menu_wrap" >
+		<span>[<a href="./?resno=<?=h($no)?>&resid=<?=h($resid ?? '')?>"><?php if($en):?>Return to thread<?php else:?>スレッドにもどる<?php endif;?></a>]</span>
+		<a href="#bottom">▽</a>
+		</nav>
+	<hr>
+
+<!--  画像と描画時間  -->
+<div class="continue_img <?php if($hidethumbnail):?>hide_thumbnail<?php endif;?>">
+<img src="<?=h($picfile)?>" width="<?=h($w)?>" height="<?=h($h)?>" alt="<?=h($sub)?> by <?=h($name)?> <?=h($picw)?>x<?=h($pich)?> - <?=($boardname)?>" title="<?=h($sub)?> by <?=h($name)?> <?=h($picw)?>x<?=h($pich)?> - <?=($boardname)?>">
+
+</div>
+<!-- ダウンロード -->
+<div class="continue_post_form">
+<?php if($download_app_dat):?>
+<form action="./" method="post" id="download_forme" onsubmit="return res_form_submit(event,'download_forme')">
+	<div id="error_message_download"></div>
+		<input type="hidden" name="mode" value="download">
+		<input type="hidden" name="id" value="<?=h($time)?>">
+		<input type="hidden" name="no" value="<?=h($no)?>">
+		<?php if(!$adminmode):?>
+		<span class="non"><input type="text" value="" autocomplete="username"></span>
+		<span class="continue_menu"><?php if($en):?>Password<?php else:?>パスワード<?php endif;?>:<input type="password" name="pwd" size="8" value="<?=h($pwdc)?>" class="paint_password" autocomplete="current-password"></span>		
+		<?php endif;?>
+		<input type="submit" value="<?php if($en):?>Download <?=h($pchext)?> file.<?php else:?><?=h($pchext)?>ファイルをダウンロード<?php endif;?>">
+		<span class="pch_kb">(<?=h($pch_kb)?>kb)</span>
+		</form>
+<?php endif;?>
+
+<?php if(!$select_app && $count_arr_apps>1):?>
+	<form action="./" method="POST" id="set_app_select_enabled" onsubmit="return set_app_select_submit(event)">
+		<span class="continue_menu">	<?php if($en):?>Current tool<?php else:?>現在のツール<?php endif;?>:<?=h($current_app)?></span>
+		<input type="hidden" name="mode" value="set_app_select_enabled_session">
+		<input type="submit" value="<?php if($en):?>Select another tool<?php else:?>別のツールを選択する<?php endif;?>">
+	</form>	
+<?php endif;?>
+
+<!-- コンティニューフォーム欄 -->
+<form action="./" method="post" id="paint_forme" onsubmit="return res_form_submit(event,'paint_forme')">
+<div id="error_message_paintform"></div>
+<?php if($select_app):?>
+<div>
+	Tool:<select name="app" class="paint_select" id="paint_select">
+<!-- ペイントアプリ選択のプルダウンメニューをインクルード -->
+<?php include __DIR__.'/parts/select_apps.html'?>
+</select>
+</div>
+<?php endif;?>
+ <input type="hidden" name="mode" value="contpaint">
+ <input type="hidden" name="anime" value="true">
+ <input type="hidden" name="picw" value="<?=h($picw)?>">
+ <input type="hidden" name="pich" value="<?=h($pich)?>">
+ <input type="hidden" name="no" value="<?=h($no)?>">
+ <input type="hidden" name="time" value="<?=h($time)?>">
+ <input type="hidden" name="imgfile" value="<?=h($imgfile)?>">
+ <select name="ctype" class="paint_select">
+	<?php if($ctype_pch):?>
+	<option value="pch"><?php if($en):?>from animation<?php else:?>動画から続きを描く<?php endif;?></option>
+	<?php endif;?>
+	<option value="img"><?php if($en):?>from picture<?php else:?>画像から続きを描く<?php endif;?></option>
+</select>
+<span class="continue_menu">
+<?php if($en):?>The image is a<?php else:?>画像は<?php endif;?> <select name="type" class="paint_select" id="select_post">
+<option value="rep"><?php if($en):?>replace<?php else:?>差し換え<?php endif;?></option>
+	<?php if(!$use_diary || $adminpost):?>
+		<option value="new"><?php if($en):?>new post<?php else:?>新規投稿<?php endif;?></option>
+	<?php endif;?>
+</select>
+</span>
+<span class="continue_menu" id="span_hide_animation">
+<input type="checkbox" name="hide_animation" id="hide_animation" value="on" <?php if($hide_animation_checkd):?>checked="checked"<?php endif;?>><label for="hide_animation"><?php if($en):?>Hide Animation<?php else:?>動画を表示しない<?php endif;?></label>	
+</span>
+<?php if(!$res_max_over):?>
+<span class="continue_menu" id="span_cont_paint_same_thread">
+			<input type="checkbox" name="cont_paint_same_thread" id="cont_paint_same_thread" value="on" checked="checked"><label for="cont_paint_same_thread"><?php if($en):?>Post in the same thread<?php else:?>同じスレッドに投稿する<?php endif;?></label>
+</span>
+<?php endif;?>
+ <br>
+
+<?php if($app_to_use):?>
+<input type="hidden" name="app" value="<?=($app_to_use)?>">
+<?php endif;?>
+
+<span class="non"><input type="text" value="" autocomplete="username"></span>
+<?php if(!$adminmode || $verified!=='adminpost'):?>
+<span class="continue_menu" id="span_cont_pass"><?php if($en):?>Password<?php else:?>パスワード<?php endif;?>:<input type="password" name="pwd" size="8" value="<?=h($pwdc)?>" class="paint_password" autocomplete="current-password"></span>
+<?php endif;?>
+<input type="submit" value="<?php if($en):?>Continue<?php else:?>続きを描く<?php endif;?>">
+</form>
+</div>
+<!--  コンティニュー説明  -->
+<?php if(!$use_diary || $adminpost):?>
+<div class="howtocontinue">
+	<ul id="up_desc">
+		<?php if($password_require_to_continue):?>
+			<li><?php if($en):?>To draw the continuation, you need the password when you drew it.<?php else:?>続きを描くには描いたときのパスワードが必要です。<?php endif;?></li>
+		<?php else:?>
+			<li><?php if($en):?>If you select new post, you can draw the continuation without a password.<?php else:?>新規投稿ならパスワードがなくても続きを描く事ができます。<?php endif;?></li>
+		<?php endif;?>
+	</ul>
+</div>
+<?php endif;?>
+</div>
+<script>
+// 新規投稿時にのみ、同じスレッドに投稿するボタンを表示
+document.getElementById('select_post').addEventListener('change', (e) => {
+
+	const cont_paint_same_thread=document.getElementById('span_cont_paint_same_thread');
+	const cont_pass=document.getElementById('span_cont_pass');
+	if(e.target.value === 'new'){//新規投稿時
+		if(cont_paint_same_thread){
+			cont_paint_same_thread.style.display = "inline-block";
+		}
+	<?php if(!$password_require_to_continue):?>
+			if(cont_pass){
+				cont_pass.style.display = "none";
+			}
+	<?php endif;?>
+	}else{
+				if(cont_paint_same_thread){
+				cont_paint_same_thread.style.display = "none";
+			}
+	<?php if(!$password_require_to_continue):?>
+			if(cont_pass){
+				cont_pass.style.display = "inline-block";
+			}
+	<?php endif;?>
+	}
+});
+const paint_select = document.getElementById('paint_select');
+const hideAnimation = document.getElementById('span_hide_animation');
+
+const toggleHideAnimation = (isNeo) => {
+	if (hideAnimation) {
+		hideAnimation.style.display = isNeo ? "inline-block" : "none";
+	}
+}
+document.addEventListener('DOMContentLoaded', () => {
+	// セレクトメニューの変更イベント
+	if(paint_select){
+		paint_select.addEventListener('change', (e) => {
+		toggleHideAnimation(e.target.value==='neo');
+		});
+		// 初期値の設定を反映
+		toggleHideAnimation(paint_select.value==='neo');
+	}
+});
+</script>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>
