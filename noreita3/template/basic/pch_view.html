@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<title><?=h($boardname)?></title> 
+
+<!-- NEOを使う -->
+<script>
+	document.paintBBSCallback = function (str) {
+	console.log('paintBBSCallback', str)
+	if (str == 'check') {
+	return true;
+	} else {
+	return;
+	}
+	}
+	</script>
+	<link rel="stylesheet" href="./app/neo/neo.css?<?=h($parameter_day)?><?=h($petit_lot)?>">
+	<script src="./app/neo/neo.js?<?=h($parameter_day)?><?=h($petit_lot)?>"></script>
+
+</head>
+<body>
+<div class="container" <?php if($appw>928):?>style="max-width:<?=h($appw) ?>px"<?php endif;?>>
+<div class="appstage" style="width:<?=h($appw) ?>px; height:<?=h($apph) ?>px">
+<applet-dummy
+name="pch" code="pch.PCHViewer.class" archive="PCHViewer.jar,PaintBBS.jar" width="<?=h($appw)?>" height="<?=h($apph)?>" MAYSCRIPT>
+<param name="image_width" value="<?=h($picw)?>">
+<param name="image_height" value="<?=h($pich)?>">
+<param name="pch_file" value="<?=h($pchfile)?>">
+<param name="speed" value="0">
+<param name="buffer_progress" value="false">
+<param name="buffer_canvas" value="false">
+<param name="neo_enable_zoom_out" value="true">
+<param name="neo_viewer_buttonswrapper_top" value="true">
+</applet-dummy>
+	</div>
+<div class="pch_download">
+<A href="<?=h($pchfile)?>" target="_blank" rel="nofollow noopener noreferrer">Download</A><br>
+<?php if($no):?>
+	<a href="./?resno=<?=h($no)?>&resid=<?=h($resid ?? "")?>"><?=h($boardname)?></a>
+<?php else:?>
+<a href="./"><?=h($boardname)?></a>
+<?php endif;?>	
+	
+	/ <a href="javascript:close()" rel="nofollow noopener noreferrer"><?php if($en):?>Close<?php else:?>閉じる<?php endif;?></a>
+</div>
+</div>
+</body>
+</html>

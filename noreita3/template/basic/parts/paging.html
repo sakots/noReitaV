@@ -1,0 +1,26 @@
+<?php
+	$mode=(string)filter_input_data('GET','mode');
+	$mode=in_array($mode,["catalog","search"]) ? $mode : "";
+	$search=($mode==="search");
+	$imgsearch=(bool)filter_input_data('GET','imgsearch',FILTER_VALIDATE_BOOLEAN);
+	$imgsearch= $imgsearch ? "on" : "off";
+	$radio =(int)filter_input_data('GET','radio',FILTER_VALIDATE_INT);
+	$en_q= $en_q ?? "";
+?>
+<div class="pagination">
+<?php if($page >= ($pagedef*17)):?>
+	[<a href="?page=0<?php if($mode):?>&mode=<?=h($mode)?><?php endif;?><?php if($search):?>&imgsearch=<?=h($imgsearch)?>&q=<?=h($en_q)?>&radio=<?=h($radio)?><?php endif;?>">0</a>] … 
+<?php endif;?>
+<?php for($i = $start_page; ($i < $count_alllog && $i <= $end_page) ; $i+=$pagedef) :?>
+	<?php if($page==$i):?>
+			[<strong><?=h($i/$pagedef)?></strong>]
+	<?php else: ?>
+			[<a href="?page=<?=h($i)?><?php if($mode):?>&mode=<?=h($mode)?><?php endif;?><?php if($search):?>&imgsearch=<?=h($imgsearch)?>&q=<?=h($en_q)?>&radio=<?=h($radio)?><?php endif;?>"><?php if($i===0):?>0<?php else:?><?=h($i/$pagedef)?><?php endif;?></a>]
+	<?php endif;?>
+<?php endfor ;?>
+<?php $last_page = ceil(($count_alllog/$pagedef)-1)*$pagedef;?>
+<?php if($end_page+$pagedef < $count_alllog):?>
+<?php if(($end_page + $pagedef) < $last_page): ?>…<?php endif; ?>
+	[<a href="?page=<?=h($last_page)?><?php if($mode):?>&mode=<?=h($mode)?><?php endif;?><?php if($search):?>&imgsearch=<?=h($imgsearch)?>&q=<?=h($en_q)?>&radio=<?=h($radio)?><?php endif;?>"><?=h($last_page/$pagedef)?></a>]
+<?php endif;?>
+</div>
