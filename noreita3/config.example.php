@@ -13,7 +13,7 @@ $admin_pass = "admin_pass";
 $second_pass = "rNuQc5WYDvrrfSaN";
 
 // この掲示板の名前
-$boardname = "noReita3 お絵かき掲示板";
+$boardname = "noReitaV お絵かき掲示板";
 
 // 掲示板からの戻り先のホームページの名前
 // 空欄なら｢ホーム｣と表示されます。
