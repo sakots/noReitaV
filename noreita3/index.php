@@ -93,32 +93,32 @@ if(!$max_log){
 if(!isset($admin_pass) || !$admin_pass){
 	error($en ? 'The administrator password has not been set.' : '管理者パスワードが設定されていません。');
 }
-$max_log=($max_log<500) ? 500 : $max_log;//最低500スレッド
-$max_com= $max_com ?? 1000;
-$sage_all= $sage_all ?? false;
-$view_other_works= $view_other_works ?? true;
-$deny_all_posts= $deny_all_posts ?? ($denny_all_posts ?? false);
-$allow_comments_only = $allow_comments_only ?? ($allow_coments_only ?? false); 
-$dispres = $dispres ?? ($display ?? 5); 
-$disp_image_res = $disp_image_res ?? 0;//0ですべて表示
-$latest_var= $latest_var ?? true;
-$badhost= $badhost ?? []; 
-$set_all_images_to_nsfw = $set_all_images_to_nsfw ?? false ; 
-$mark_sensitive_image = $mark_sensitive_image ?? false; 
+$max_log = ($max_log < 500) ? 500 : $max_log; //最低500スレッド
+$max_com = $max_com ?? 1000;
+$sage_all = $sage_all ?? false;
+$view_other_works = $view_other_works ?? true;
+$deny_all_posts = $deny_all_posts ?? ($denny_all_posts ?? false);
+$allow_comments_only = $allow_comments_only ?? ($allow_coments_only ?? false);
+$dispres = $dispres ?? ($display ?? 5);
+$disp_image_res = $disp_image_res ?? 0; //0ですべて表示
+$latest_var = $latest_var ?? true;
+$badhost = $badhost ?? [];
+$set_all_images_to_nsfw = $set_all_images_to_nsfw ?? false ;
+$mark_sensitive_image = $mark_sensitive_image ?? false;
 $mark_sensitive_image = $set_all_images_to_nsfw ? false : $mark_sensitive_image;
 $age_check_required_to_view = $age_check_required_to_view ?? false;
 $set_nsfw_hide_flag = ($set_nsfw || $set_all_images_to_nsfw || $age_check_required_to_view);
 $only_admin_can_reply = $only_admin_can_reply ?? false;
 $check_password_input_error_count = $check_password_input_error_count ?? false;
-$aikotoba_required_to_view= $aikotoba_required_to_view ?? false;
-$keep_aikotoba_login_status= $keep_aikotoba_login_status ?? false;
-$use_paintbbs_neo= $use_paintbbs_neo ?? true;
-$use_chickenpaint= $use_chickenpaint ?? true;
+$aikotoba_required_to_view = $aikotoba_required_to_view ?? false;
+$keep_aikotoba_login_status = $keep_aikotoba_login_status ?? false;
+$use_paintbbs_neo = $use_paintbbs_neo ?? true;
+$use_chickenpaint = $use_chickenpaint ?? true;
 $max_file_size_in_png_format_paint = $max_file_size_in_png_format_paint ?? 1024;
 $max_file_size_in_png_format_upload = $max_file_size_in_png_format_upload ?? 800;
-$use_klecs= $use_klecs ?? true;
-$use_tegaki= $use_tegaki ?? true;
-$use_axnos= $use_axnos ?? true;
+$use_klecs = $use_klecs ?? true;
+$use_tegaki = $use_tegaki ?? true;
+$use_axnos = $use_axnos ?? true;
 $display_link_back_to_home = $display_link_back_to_home ?? true;
 $password_require_to_continue = $password_require_to_continue ?? false;
 $subject_input_required = $subject_input_required ?? false;
@@ -145,11 +145,12 @@ $all_hide_painttime  =  $all_hide_painttime  ?? false;
 $hide_userid  =  $hide_userid  ?? false;
 $mode = (string)filter_input_data('POST','mode');
 $mode = $mode ? $mode :(string)filter_input_data('GET','mode');
-$resno=(int)filter_input_data('GET','resno',FILTER_VALIDATE_INT);
+$resno = (int)filter_input_data('GET','resno',FILTER_VALIDATE_INT) ?? 0;
 $httpsonly = (bool)($_SERVER['HTTPS'] ?? '');
 //user-codeの発行
 $usercode = t(filter_input_data('COOKIE', 'usercode'));//user-codeを取得
 
+//セッション開始
 session_sta();
 $session_usercode = $_SESSION['usercode'] ?? "";
 $session_usercode = t($session_usercode);
