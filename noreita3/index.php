@@ -1,67 +1,82 @@
 <?php
-//Petit Note (c)さとぴあ @satopian 2021-2025 MIT License
-//https://paintbbs.sakura.ne.jp/
-//1スレッド1ログファイル形式のスレッド式画像掲示板
+//--------------------------------------------------
+//  おえかきけいじばん「noReitaV」
+//  by sakots & OekakiBBS reDev.Team  https://oekakibbs.moe/
+//--------------------------------------------------
 
-$petit_ver='v1.156.0';
-$petit_lot='lot.20251128';
+//スクリプトのバージョン
+define('REITA_VER', 'v2.1.1'); //lot.251202.0
 
+//言語設定
 $lang = ($http_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')
   ? explode( ',', $http_langs )[0] : '';
-$en= (stripos($lang,'ja')!==0);
+$en= (stripos($lang,'ja') !== 0);
 
+//PHPバージョンチェック
 if (version_compare(PHP_VERSION, '7.3.0', '<')) {
 	die($en? "Error. PHP version 7.3.0 or higher is required for this program to work. <br>\n(Current PHP version:".PHP_VERSION.")":
 		"エラー。本プログラムの動作には PHPバージョン 7.3.0 以上が必要です。<br>\n(現在のPHPバージョン：".PHP_VERSION.")"
 	);
 }
 
+//functions.phpの存在チェック
 if(!is_file(__DIR__.'/functions.php')){
 	die(__DIR__.'/functions.php'.($en ? ' does not exist.':'がありません。'));
 }
 require_once(__DIR__.'/functions.php');
-if(!isset($functions_ver)||$functions_ver<20251127){
-	die($en?'Please update functions.php to the latest version.':'functions.phpを最新版に更新してください。');
+if(!isset($functions_ver) || $functions_ver < 20251127){
+	die($en ? 'Please update functions.php to the latest version.':'functions.phpを最新版に更新してください。');
 }
 
+//misskey_note.inc.phpの存在チェック
 check_file(__DIR__.'/misskey_note.inc.php');
 require_once(__DIR__.'/misskey_note.inc.php');
-if(!isset($misskey_note_ver)||$misskey_note_ver<20250718){
-	die($en?'Please update misskey_note.inc.php to the latest version.':'misskey_note.inc.phpを最新版に更新してください。');
+if(!isset($misskey_note_ver) || $misskey_note_ver < 20250718){
+	die($en ? 'Please update misskey_note.inc.php to the latest version.':'misskey_note.inc.phpを最新版に更新してください。');
 }
 
+//save.inc.phpの存在チェック
 check_file(__DIR__.'/save.inc.php');
 require_once(__DIR__.'/save.inc.php');
-if(!isset($save_inc_ver)||$save_inc_ver<20250918){
-	die($en?'Please update save.inc.php to the latest version.':'save.inc.phpを最新版に更新してください。');
+if(!isset($save_inc_ver) || $save_inc_ver < 20250918){
+	die($en ? 'Please update save.inc.php to the latest version.':'save.inc.phpを最新版に更新してください。');
 }
 
+//search.inc.phpの存在チェック
 check_file(__DIR__.'/search.inc.php');
 require_once(__DIR__.'/search.inc.php');
-if(!isset($search_inc_ver)||$search_inc_ver<20250906){
-	die($en?'Please update search.inc.php to the latest version.':'search.inc.phpを最新版に更新してください。');
+if(!isset($search_inc_ver) || $search_inc_ver < 20250906){
+	die($en ? 'Please update search.inc.php to the latest version.':'search.inc.phpを最新版に更新してください。');
 }
 
+//sns_share.inc.phpの存在チェック
 check_file(__DIR__.'/sns_share.inc.php');
 require_once(__DIR__.'/sns_share.inc.php');
-if(!isset($sns_share_inc_ver)||$sns_share_inc_ver<20251031){
-	die($en?'Please update search.inc.php to the latest version.':'sns_share.inc.phpを最新版に更新してください。');
+if(!isset($sns_share_inc_ver) || $sns_share_inc_ver < 20251031){
+	die($en ? 'Please update search.inc.php to the latest version.':'sns_share.inc.phpを最新版に更新してください。');
 }
 
+//thumbnail_gd.inc.phpの存在チェック
 check_file(__DIR__.'/thumbnail_gd.inc.php');
 require_once(__DIR__.'/thumbnail_gd.inc.php');
-if(!isset($thumbnail_gd_ver)||$thumbnail_gd_ver<20250707){
-	error($en?'Please update thumbmail_gd.inc.php to the latest version.':'thumbnail_gd.inc.phpを最新版に更新してください。');
+if(!isset($thumbnail_gd_ver) || $thumbnail_gd_ver < 20250707){
+	error($en ? 'Please update thumbmail_gd.inc.php to the latest version.':'thumbnail_gd.inc.phpを最新版に更新してください。');
 }
 
+//noticemail.inc.phpの存在チェック
 check_file(__DIR__.'/noticemail.inc.php');
 require_once(__DIR__.'/noticemail.inc.php');
-if(!isset($noticemail_inc_ver)||$noticemail_inc_ver<20250315){
-	error($en?'Please update noticemail.inc.php to the latest version.':'noticemail.inc.phpを最新版に更新してください。');
+if(!isset($noticemail_inc_ver) || $noticemail_inc_ver < 20250315){
+	error($en ? 'Please update noticemail.inc.php to the latest version.':'noticemail.inc.phpを最新版に更新してください。');
 }
 
+//config.phpの存在チェック
 check_file(__DIR__.'/config.php');
 require_once(__DIR__.'/config.php');
+if(!isset($config_ver) || $config_ver < 20251202){
+	die($en?'Please update config.php to the latest version.':'config.phpを最新版に更新してください。');
+}
+
 // jQueryバージョン
 const JQUERY='jquery-3.7.0.min.js';
 check_file(__DIR__.'/lib/'.JQUERY);
