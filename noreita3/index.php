@@ -25,60 +25,60 @@ if(!is_file(__DIR__.'/functions.php')){
 }
 require_once(__DIR__.'/functions.php');
 if(!isset($functions_ver) || $functions_ver < 20251127){
-	die($en ? 'Please update functions.php to the latest version.':'functions.phpを最新版に更新してください。');
+	die($en ? 'Please update functions.php to the latest version.' : 'functions.phpを最新版に更新してください。');
 }
 
 //misskey_note.inc.phpの存在チェック
 check_file(__DIR__.'/misskey_note.inc.php');
 require_once(__DIR__.'/misskey_note.inc.php');
 if(!isset($misskey_note_ver) || $misskey_note_ver < 20250718){
-	die($en ? 'Please update misskey_note.inc.php to the latest version.':'misskey_note.inc.phpを最新版に更新してください。');
+	die($en ? 'Please update misskey_note.inc.php to the latest version.' : 'misskey_note.inc.phpを最新版に更新してください。');
 }
 
 //save.inc.phpの存在チェック
 check_file(__DIR__.'/save.inc.php');
 require_once(__DIR__.'/save.inc.php');
 if(!isset($save_inc_ver) || $save_inc_ver < 20250918){
-	die($en ? 'Please update save.inc.php to the latest version.':'save.inc.phpを最新版に更新してください。');
+	die($en ? 'Please update save.inc.php to the latest version.' : 'save.inc.phpを最新版に更新してください。');
 }
 
 //search.inc.phpの存在チェック
 check_file(__DIR__.'/search.inc.php');
 require_once(__DIR__.'/search.inc.php');
 if(!isset($search_inc_ver) || $search_inc_ver < 20250906){
-	die($en ? 'Please update search.inc.php to the latest version.':'search.inc.phpを最新版に更新してください。');
+	die($en ? 'Please update search.inc.php to the latest version.' : 'search.inc.phpを最新版に更新してください。');
 }
 
 //sns_share.inc.phpの存在チェック
 check_file(__DIR__.'/sns_share.inc.php');
 require_once(__DIR__.'/sns_share.inc.php');
 if(!isset($sns_share_inc_ver) || $sns_share_inc_ver < 20251031){
-	die($en ? 'Please update search.inc.php to the latest version.':'sns_share.inc.phpを最新版に更新してください。');
+	die($en ? 'Please update search.inc.php to the latest version.' : 'sns_share.inc.phpを最新版に更新してください。');
 }
 
 //thumbnail_gd.inc.phpの存在チェック
 check_file(__DIR__.'/thumbnail_gd.inc.php');
 require_once(__DIR__.'/thumbnail_gd.inc.php');
 if(!isset($thumbnail_gd_ver) || $thumbnail_gd_ver < 20250707){
-	error($en ? 'Please update thumbmail_gd.inc.php to the latest version.':'thumbnail_gd.inc.phpを最新版に更新してください。');
+	error($en ? 'Please update thumbmail_gd.inc.php to the latest version.' : 'thumbnail_gd.inc.phpを最新版に更新してください。');
 }
 
 //noticemail.inc.phpの存在チェック
 check_file(__DIR__.'/noticemail.inc.php');
 require_once(__DIR__.'/noticemail.inc.php');
 if(!isset($noticemail_inc_ver) || $noticemail_inc_ver < 20250315){
-	error($en ? 'Please update noticemail.inc.php to the latest version.':'noticemail.inc.phpを最新版に更新してください。');
+	error($en ? 'Please update noticemail.inc.php to the latest version.' : 'noticemail.inc.phpを最新版に更新してください。');
 }
 
 //config.phpの存在チェック
 check_file(__DIR__.'/config.php');
 require_once(__DIR__.'/config.php');
 if(!isset($config_ver) || $config_ver < 20251202){
-	die($en?'Please update config.php to the latest version.':'config.phpを最新版に更新してください。');
+	die($en ? 'Please update config.php to the latest version.' : 'config.phpを最新版に更新してください。');
 }
 
 // jQueryバージョン
-const JQUERY='jquery-3.7.0.min.js';
+const JQUERY = 'jquery-3.7.0.min.js';
 check_file(__DIR__.'/lib/'.JQUERY);
 // luminous
 check_file(__DIR__.'/lib/lightbox/js/lightbox.min.js');
@@ -88,10 +88,10 @@ check_file(__DIR__.'/lib/lightbox/css/lightbox.min.css');
 $skindir='template/'.$skindir;
 
 if(!$max_log){
-	error($en?'The maximum number of threads has not been set.':'最大スレッド数が設定されていません。');
+	error($en ? 'The maximum number of threads has not been set.' : '最大スレッド数が設定されていません。');
 }
-if(!isset($admin_pass)||!$admin_pass){
-	error($en?'The administrator password has not been set.':'管理者パスワードが設定されていません。');
+if(!isset($admin_pass) || !$admin_pass){
+	error($en ? 'The administrator password has not been set.' : '管理者パスワードが設定されていません。');
 }
 $max_log=($max_log<500) ? 500 : $max_log;//最低500スレッド
 $max_com= $max_com ?? 1000;
