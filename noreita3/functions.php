@@ -1,6 +1,8 @@
 <?php
-//Petit Note (c)さとぴあ @satopian 2021-2025 MIT License
-//https://paintbbs.sakura.ne.jp/
+//--------------------------------------------------
+//  おえかきけいじばん「noReitaV」
+//  by sakots & OekakiBBS reDev.Team  https://oekakibbs.moe/
+//--------------------------------------------------
 
 $functions_ver=20251127;
 
@@ -1245,15 +1247,15 @@ function is_badhost(): bool {
 //初期化
 function init(): void {
 	
-	check_dir(__DIR__."/src");
+	check_dir(__DIR__."/img");
 	check_dir(__DIR__."/temp");
 	check_dir(__DIR__."/thumbnail");
 	check_dir(__DIR__."/log");
 	check_dir(__DIR__."/webp");
-	check_dir(__DIR__."/template/cache");
+	check_dir(__DIR__."/theme/cache");
 	if(!is_file(LOG_DIR.'alllog.log')){
 	file_put_contents(LOG_DIR.'alllog.log','',FILE_APPEND|LOCK_EX);
-	chmod(LOG_DIR.'alllog.log',0600);	
+	chmod(LOG_DIR.'alllog.log',0600);
 	}
 }
 
