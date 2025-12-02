@@ -100,7 +100,7 @@
 							<?php if($res['thumbnail']):?>
 								<img src="thumbnail/<?=h($res['thumbnail'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>" <?php if($i>5):?>loading="lazy"<?php endif;?>>
 							<?php else:?>
-								<img src="src/<?=h($res['img'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>" <?php if($i>5):?>loading="lazy"<?php endif;?>>
+								<img src="img/<?=h($res['img'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>" <?php if($i>5):?>loading="lazy"<?php endif;?>>
 							<?php endif;?>
 						<?php if($res['webpimg']):?>
 						</picture>	

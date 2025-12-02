@@ -47,11 +47,11 @@
 			<?php endif;?>
 
 			<div class="posted_image <?php if($res['hide_thumbnail']):?>hide_thumbnail<?php endif;?>" <?php if($res['_w']>747):?>style="float:none;margin-right:0"<?php endif;?>>
-				<a href="src/<?=h($res['img'])?>" target="_blank" data-lightbox="<?=h($res['no'])?>_<?=h($res['time'])?>">
+				<a href="img/<?=h($res['img'])?>" target="_blank" data-lightbox="<?=h($res['no'])?>_<?=h($res['time'])?>">
 				<?php if($res['thumbnail']):?>
 					<img src="thumbnail/<?=h($res['thumbnail'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>">
 				<?php else:?>
-					<img src="src/<?=h($res['img'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>">
+					<img src="img/<?=h($res['img'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>">
 				<?php endif;?>
 				<?php if($res['hide_thumbnail']):?>
 					<span>NSFW</span>

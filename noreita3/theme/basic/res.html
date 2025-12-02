@@ -13,7 +13,7 @@
 <meta property="og:url" content="<?=h($root_url)?>?resno=<?= h($out[0][0]['no'])?><?= (isset($og_resid) && $og_resid) ? '&resid='.h($og_resid) : '' ?>">
 <!-- 閲覧注意 またはNSFWが設定されている時は ogp imageを表示しない -->
 <?php if(!empty($og_img) && (!empty($ogp_show_nsfw) || !(!empty($set_nsfw_hide_flag) || !empty($og_hide_thumbnail)))):?>
-<meta property="og:image" content="<?=h($root_url)?>src/<?=h($og_img)?>">
+<meta property="og:image" content="<?=h($root_url)?>img/<?=h($og_img)?>">
 <?php endif;?>
 <meta property="og:site_name"  content="<?=h($boardname)?>">
 <meta property="og:description" content="<?=h(s($og_descriptioncom))?>">
@@ -181,7 +181,7 @@ Size:
 	<?php endif;?>
 	<img src="<?php if($view_other_work['thumbnail']):?>thumbnail/<?=h($view_other_work['thumbnail'])?>
 		<?php else:?>
-	src/<?=h($view_other_work['img'])?><?php endif?>" alt="<?=h($view_other_work['sub'])?> by <?=h($view_other_work['name'])?>" title="<?=h($view_other_work['sub'])?> by <?=h($view_other_work['name'])?>" width="<?=h($view_other_work['w'])?>" height="<?=h($view_other_work['h'])?>" loading="lazy">
+	img/<?=h($view_other_work['img'])?><?php endif?>" alt="<?=h($view_other_work['sub'])?> by <?=h($view_other_work['name'])?>" title="<?=h($view_other_work['sub'])?> by <?=h($view_other_work['name'])?>" width="<?=h($view_other_work['w'])?>" height="<?=h($view_other_work['h'])?>" loading="lazy">
 	<?php if($view_other_work['webpimg']):?>
 	</picture>
 	<?php endif;?>
