@@ -2,7 +2,7 @@
 //Petit Note (c)さとぴあ @satopian 2021-2025 MIT License
 //https://paintbbs.sakura.ne.jp/
 
-$functions_ver=20251120;
+$functions_ver=20251127;
 
 //編集モードログアウト
 function logout(): void {
@@ -520,7 +520,7 @@ function switch_tool($tool): string {
 			$tool='Shi-Painter';
 			break;
 		case 'chi':
-			$tool='litaChit';
+			$tool='litaChix';
 			break;
 		case 'klecks':
 			$tool='Klecks';
@@ -1245,7 +1245,7 @@ function is_badhost(): bool {
 //初期化
 function init(): void {
 	
-	check_dir(__DIR__."/img");
+	check_dir(__DIR__."/src");
 	check_dir(__DIR__."/temp");
 	check_dir(__DIR__."/thumbnail");
 	check_dir(__DIR__."/log");
@@ -1253,7 +1253,7 @@ function init(): void {
 	check_dir(__DIR__."/template/cache");
 	if(!is_file(LOG_DIR.'alllog.log')){
 	file_put_contents(LOG_DIR.'alllog.log','',FILE_APPEND|LOCK_EX);
-	chmod(LOG_DIR.'alllog.log',0600);
+	chmod(LOG_DIR.'alllog.log',0600);	
 	}
 }
 
