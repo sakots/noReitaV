@@ -173,7 +173,9 @@ if(!isset($_COOKIE["p_n_set_darkmode"]) && $darkmode_by_default) {
 
 //初期化
 init();
-deltemp();//テンポラリ自動削除
+deltemp(); //テンポラリ自動削除
+
+//モード
 switch($mode){
 	case 'regist':
 		if($deny_all_posts) {
