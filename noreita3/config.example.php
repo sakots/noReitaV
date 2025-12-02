@@ -90,6 +90,12 @@ $skindir = "basic/";
 // $descriptions = ["iPadやスマートフォンでも描けるお絵かき掲示板です。"];
 $descriptions = ["iPadやスマートフォンでも描けるお絵かき掲示板です。","楽しくお絵かき。"];
 
+/*データベース名*/
+//拡張子として.dbがつきます。初期設定はreita.db。
+$db_name = 'reita';
+
+//データベース接続PDO
+$db_pdo = 'sqlite:' . $db_name . '.db';
 
 /*メール通知*/
 
