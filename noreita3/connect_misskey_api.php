@@ -12,7 +12,7 @@ $lang = ($http_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')
 $en= (stripos($lang,'ja')!==0);
 
 //テンプレート
-$skindir='template/'.$skindir;
+$skindir='theme/'.$skindir;
 
 session_sta();
 
@@ -84,7 +84,7 @@ class connect_misskey_api{
 		$src_image=basename($src_image);
 
 		// 画像のアップロード
-		$imagePath = __DIR__.'/src/'.$src_image;
+		$imagePath = __DIR__.'/img/'.$src_image;
 
 		if(!is_file($imagePath)){
 			error($en ? "Image does not exist." : "画像がありません。" ,false);
