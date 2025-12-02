@@ -1010,7 +1010,7 @@ function check_open_no($no): void {
 function getId ($userip): string {
 
 	session_sta();
-	return 
+	return
 	(isset($_SESSION['userid'])&&$_SESSION['userid']) ?
 	t($_SESSION['userid']) :
 	t(substr(hash('sha256', $userip, false),-8));
@@ -1071,7 +1071,7 @@ function check_submission_interval(): void {
 		error($en? 'Please wait a little.':'少し待ってください。');
 	}
 }
-// テンポラリ内のゴミ除去 
+// テンポラリ内のゴミ除去
 function deltemp(): void {
 	global $check_password_input_error_count;
 	$handle = opendir(TEMP_DIR);
@@ -1258,6 +1258,24 @@ function init(): void {
 	chmod(LOG_DIR.'alllog.log',0600);
 	}
 }
+try {
+	if (!is_file($db_name . '.db')) {
+		// はじめての実行なら、テーブルを作成
+		// id, 書いた日時, 修正日時, スレ親orレス, 親スレ, コメントid, スレ構造ID,
+		// 名前, メール, タイトル, 本文, url, ホスト,
+		// そうだね, 投稿者ID, パスワード, 絵の時間(内部), 絵の時間, 絵のurl, pchのurl, 絵の幅, 絵の高さ,
+		// age/sage記憶, 表示/非表示, 絵のツール, 認証マーク, そろそろ消える, nsfw, 予備2, 予備3, 予備4
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$sql = "CREATE TABLE tlog (tid integer primary key autoincrement, created TIMESTAMP, modified TIMESTAMP, thread VARCHAR(1), parent INT, comid BIGINT, tree BIGINT, a_name TEXT, mail TEXT, sub TEXT, com TEXT, a_url TEXT, host TEXT, exid TEXT, id TEXT, pwd TEXT, psec INT, utime TEXT, picfile TEXT, pchfile TEXT, img_w INT, img_h INT, age INT, invz VARCHAR(1), tool TEXT, admins VARCHAR(1), shd VARCHAR(1), ext01 TEXT, ext02 TEXT, ext03 TEXT, ext04 TEXT)";
+		$db = $db->query($sql);
+		$db = null; //db切断
+	}
+} catch (PDOException $e) {
+	echo "DB接続エラー:" . $e->getMessage();
+}
+$err = '';
+if (!is_writable(realpath("./"))) error("カレントディレクトリに書けません<br>");
 
 //ディレクトリ作成
 function check_dir ($path): void {
