@@ -215,21 +215,22 @@ class processsearch
 		}
 		$i = 0;
 		$j = 0;
-		$fp = fopen("log/alllog.log", "r");
-		while ($log = fgets($fp)) {
+		// SQLiteから全体ログを読み込む
+		$alllog_lines = read_alllog_from_sqlite();
+		foreach ($alllog_lines as $log) {
 			if (!trim($log)) {
 				continue;
 			}
 			list($resno) = explode("\t", $log, 2);
 			$resno = basename($resno);
 			//個別スレッドのループ
-			if (!is_file(LOG_DIR . "{$resno}.log")) {
+			// SQLiteからログを読み込む
+			$log_lines = read_log_from_sqlite($resno);
+			if (empty($log_lines)) {
 				continue;
 			}
-			$rp = fopen("log/{$resno}.log", "r");
-			while ($line = fgets($rp)) {
-
-				$lines = explode("\t", $line);
+			foreach ($log_lines as $line) {
+				$lines = explode("\t", trim($line));
 				//ホスト名とパスワードハッシュは含めない
 				list($no, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $log_img_hash, $tool, $pchext, $time, $first_posted_time,, $userid,, $oya) = $lines;
 
@@ -271,7 +272,6 @@ class processsearch
 			} //1掲示板あたりの最大行数
 			++$j;
 		}
-		fclose($fp);
 
 		$_SESSION['search_result'] = $arr;
 		return $arr;

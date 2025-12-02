@@ -354,29 +354,25 @@ function post(): void {
 	}
 
 	//エラー処理
-	if($resto && !is_file(LOG_DIR."{$resto}.log")) {
-		if(!$is_painted_img){//お絵かきではない時は
-			error($en ? 'The article does not exist.' : '記事がありません。');
+	$r_arr = [];
+	if($resto) {
+		// SQLiteからログを読み込む
+		$r_arr = read_log_from_sqlite($resto);
+		if(empty($r_arr)){
+			if(!$is_painted_img){//お絵かきではない時は
+				error($en ? 'The article does not exist.' : '記事がありません。');
+			}
+			$resto = ''; //レス先がないお絵かきは新規投稿扱いにする。
 		}
-		$resto = ''; //レス先がないお絵かきは新規投稿扱いにする。
 	}
 	$count_r_arr = 0;
 	$r_oya = '';
 	$r_no = '';
-	$rp = false;
-	$r_arr = [];
 	$chk_resto = '';
-	if($resto) { //レスの時はファイルロックしてレスファイルを開く
-		check_open_no($resto);
-		chmod(LOG_DIR."{$resto}.log",0600);
-		$rp=fopen(LOG_DIR."{$resto}.log","r+");
-		file_lock($rp, LOCK_EX);
-		$r_arr = create_array_from_fp($rp);
-		if(empty($r_arr)){
-			closeFile($rp);
-			if(!$is_painted_img){
-				error($en ? 'This operation has failed.' : '失敗しました。');
-			}
+	if($resto && empty($r_arr)) {
+		if(!$is_painted_img){
+			error($en ? 'This operation has failed.' : '失敗しました。');
+		}
 			$chk_resto = $resto;
 			$resto = '';
 		}
@@ -492,27 +488,8 @@ function post(): void {
 	//全体ログを開く（SQLiteから読み込む）
 	$alllog_arr = read_alllog_from_sqlite();
 	
-	if(empty($alllog_arr)){
-		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-		chmod(LOG_DIR."alllog.log",0600);
-		$fp=fopen(LOG_DIR."alllog.log","r+");
-		if(!$fp) {
-			safe_unlink($upfile);
-			error($en ? 'This operation has failed.' : '失敗しました。');
-		}
-		file_lock($fp, LOCK_EX);
-		$alllog_arr = create_array_from_fp($fp);
-	} else {
-		// ファイルログも開く（後方互換性のため）
-		chmod(LOG_DIR."alllog.log",0600);
-		$fp=fopen(LOG_DIR."alllog.log","r+");
-		if($fp) {
-			file_lock($fp, LOCK_EX);
-		}
-	}
 	if($resto){//投稿数が0の時には空になるため、レス時のみチェック
 		if(empty($alllog_arr)) {
-			closeFile($fp);
 			safe_unlink($upfile);
 			error($en ? 'This operation has failed.' : '失敗しました。');
 		}
@@ -534,8 +511,6 @@ function post(): void {
 		list($no_,$sub_,$name_,$verified_,$com_,$url_,$imgfile_,$w_,$h_,$thumbnail_,$painttime_,$log_img_hash_,$tool_,$pchext_,$time_,$first_posted_time_,$host_,$userid_,$hash_,$oya_) = $chk_ex_line;
 		if($m2time === microtime2time($time_)) { //投稿時刻の重複回避
 			safe_unlink($upfile);
-			closeFile($fp);
-			closeFile($rp);
 			error($en ? 'Please wait a little.' : '少し待ってください。');
 		}
 		if($userid === $userid_) {
@@ -553,8 +528,6 @@ function post(): void {
 		list($_no_,$_sub_,$_name_,$_verified_,$_com_,$_url_,$_imgfile_,$_w_,$_h_,$_thumbnail_,$_painttime_,$_log_img_hash_,$_tool_,$_pchext_,$_time_,$_first_posted_time_,$_host_,$_userid_,$_hash_,$_oya_) = $line;
 
 		if(!$adminpost && ($com && ($com === $_com_))) {
-			closeFile($fp);
-			closeFile($rp);
 			safe_unlink($upfile);
 			error($en ? 'Post once by this comment.' : '同じコメントがありました。');
 		}
@@ -562,8 +535,6 @@ function post(): void {
 		// 画像アップロードと画像なしそれぞれの待機時間
 		$interval = (int)time() - (int)microtime2time($_time_);
 		if($interval >= 0 && (($upfile && $interval < 30) || (!$upfile && $interval < 20))) { //待機時間がマイナスの時は通す
-			closeFile($fp);
-			closeFile($rp);
 			safe_unlink($upfile);
 			error($en ? 'Please wait a little.' : '少し待ってください。');
 		}
@@ -583,8 +554,6 @@ function post(): void {
 
 		$ext = get_image_type($upfile);
 		if (!$ext) {
-			closeFile($fp);
-			closeFile($rp);
 			safe_unlink($upfile);
 			error($en ? 'This file is an unsupported format.' : '対応していないファイル形式です。');
 		}
@@ -596,8 +565,6 @@ function post(): void {
 			foreach($chk_images as $line) {
 				list($no_,$sub_,$name_,$verified_,$com_,$url_,$imgfile_,$w_,$h_,$thumbnail_,$painttime_,$log_img_hash,$tool_,$pchext_,$time_,$first_posted_time_,$host_,$userid_,$hash_,$oya_) = $line;
 				if(!adminpost_valid() && ($log_img_hash && ($log_img_hash === $up_img_hash))) {
-					closeFile($fp);
-					closeFile($rp);
 					safe_unlink($upfile);
 					error($en ? 'Image already exists.' : '同じ画像がありました。');
 				}
@@ -662,16 +629,12 @@ function post(): void {
 		$r_oya = '';
 		$r_no = '';
 		if(empty($r_arr)) {
-			closeFile($fp);
-			closeFile($rp);
 			safe_unlink(IMG_DIR.$imgfile);
 			error($en ? 'This operation has failed.' : '失敗しました。');
 		}
 		//レス先はoya?
 		list($r_no,,,,,,,,,,,,,,,,,,,$r_oya) = explode("\t",trim($r_arr[0]));
 		if($r_no !== $resto || $r_oya !== 'oya') {
-			closeFile($fp);
-			closeFile($rp);
 			safe_unlink(IMG_DIR.$imgfile);
 			error($en ? 'The article does not exist.' : '記事がありません。');
 		}
@@ -681,10 +644,6 @@ function post(): void {
 
 		// SQLiteにログを書き込む
 		write_log_to_sqlite($resto, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $up_img_hash, $tool, $pchext, $time, $time, $host, $userid, $hash, 'res', $resto);
-		
-		// ファイルログも残す（後方互換性のため）
-		writeFile($rp,$new_rline);
-		closeFile($rp);
 
 		if(!$sage) {
 			foreach($alllog_arr as $i =>$val) {
@@ -710,10 +669,6 @@ function post(): void {
 		
 		// SQLiteにログを書き込む
 		write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $up_img_hash, $tool, $pchext, $time, $time, $host, $userid, $hash, 'oya');
-		
-		// ファイルログも残す（後方互換性のため）
-		file_put_contents(LOG_DIR.$no.'.log',$new_r_line,LOCK_EX); //新規投稿の時は、記事ナンバーのファイルを作成して書き込む
-		chmod(LOG_DIR."{$no}.log",0600);
 	}
 
 	//保存件数超過処理
@@ -725,32 +680,21 @@ function post(): void {
 			continue;
 		}
 		list($d_no,) = explode("\t",$alllog_arr[$i],2);
-		if(is_file(LOG_DIR."{$d_no}.log")) {
-			check_open_no($d_no);
-			$dp = fopen(LOG_DIR."{$d_no}.log", "r"); //個別スレッドのログを開く
-			file_lock($dp, LOCK_EX);
-
-			while ($line = fgets($dp)) {
-				if(!trim($line)){
-					continue;
-				}
-				list($d_no,$_sub,$_name,$_verified,$_com,$_url,$d_imgfile,$_w,$_h,$_thumbnail,$_painttime,$_log_img_hash,$_tool,$_pchext,$d_time,$_first_posted_time,$_host,$_userid,$_hash,$_oya) = explode("\t",trim($line));
-
-				delete_files ($d_imgfile, $d_time); //一連のファイルを削除
-
+		// SQLiteからログを読み込んで削除
+		$d_lines = read_log_from_sqlite($d_no);
+		foreach($d_lines as $d_line) {
+			if(!trim($d_line)){
+				continue;
 			}
-			closeFile($dp);
-			safe_unlink(LOG_DIR.$d_no.'.log'); //スレッド個別ログファイル削除
+			list($d_no,$_sub,$_name,$_verified,$_com,$_url,$d_imgfile,$_w,$_h,$_thumbnail,$_painttime,$_log_img_hash,$_tool,$_pchext,$d_time,$_first_posted_time,$_host,$_userid,$_hash,$_oya) = explode("\t",trim($d_line));
+			delete_files ($d_imgfile, $d_time); //一連のファイルを削除
 		}
+		// SQLiteからログを削除
+		delete_log_from_sqlite($d_no);
 		unset($alllog_arr[$i]); //全体ログ記事削除
 		}
 	}
-	$newline.=implode("",$alllog_arr);
-
 	// 全体ログはSQLiteから読み込むため、ファイルへの書き込みは不要
-	// ただし後方互換性のため残す
-	writeFile($fp, $newline);
-	closeFile($fp);
 
 	//ワークファイル削除
 	safe_unlink($src);
@@ -912,7 +856,9 @@ function paint(): void {
 		session_sta();
 		unset ($_SESSION['enableappselect']);
 
-		if(is_file(LOG_DIR."{$no}.log")) {
+		// SQLiteからログを読み込んで確認
+		$lines = read_log_from_sqlite($no);
+		if(!empty($lines)) {
 			if($type !== 'rep'){
 				$resto = $cont_paint_same_thread ? $no : '';
 			}
@@ -921,8 +867,7 @@ function paint(): void {
 			error($en ? 'The article does not exist.' : '記事がありません。');
 		}
 		$find = false;
-		$rp = fopen(LOG_DIR."{$no}.log","r");
-		while($_line = fgets($rp)) {
+		foreach($lines as $_line) {
 			if(strpos($_line,"\t".$imgfile."\t") !== false) {
 				list($_no,,,,,,$_imgfile,,,,,,$_tool,,$_time,$_first_posted_time,)=explode("\t",trim($_line));
 				if($no === $_no && $time === $_time && $imgfile === $_imgfile && $_tool !== 'upload') {
@@ -931,7 +876,6 @@ function paint(): void {
 				}
 			}
 		}
-		closeFile($rp);
 		if(!$find) {
 			error($en ? 'This operation has failed.' : '失敗しました。');
 		}
@@ -1156,11 +1100,12 @@ function to_continue(): void {
 	session_sta();
 	$enableappselect= $_SESSION['enableappselect'] ?? false;
 
-	if(!is_file(LOG_DIR."{$no}.log")){
+	// SQLiteからログを読み込む
+	$r_arr = read_log_from_sqlite($no);
+	if(empty($r_arr)){
 		error($en? 'The article does not exist.':'記事がありません。');
 	}
 	check_open_no($no);
-	$rp=fopen(LOG_DIR."{$no}.log","r");
 	$i=0;
 	//スレッドが閉じてるかどうか
 	$oya_time=0;
@@ -1168,7 +1113,7 @@ function to_continue(): void {
 	//記事は存在するか
 	$flag = false;
 	$resid = '';
-	while ($line = fgets($rp)) {
+	foreach($r_arr as $line) {
 		if(strpos($line,"\toya")!==false || strpos($line,"\t".$id."\t")!==false){
 			list($_no,$sub,$name,$verified,$com,$url,$_imgfile,$w,$h,$thumbnail,$painttime,$log_img_hash,$tool,$_pchext,$_time,$first_posted_time,$host,$userid,$hash,$oya)=explode("\t",trim($line));
 			if($oya==="oya"){
@@ -1183,8 +1128,6 @@ function to_continue(): void {
 		}
 		++$i;
 	}
-
-	closeFile ($rp);
 	//閉じていたら $res_max_over が true になる
 	$res_max_over=(!$adminpost && ($i>$max_res||!check_elapsed_days($oya_time)));
 
@@ -1269,12 +1212,14 @@ function download_app_dat(): void {
 	$no = (string)filter_input_data('POST', 'no',FILTER_VALIDATE_INT);
 	$id = (string)filter_input_data('POST', 'id');//intの範囲外
 
-	if(!is_file(LOG_DIR."{$no}.log")){
+	// SQLiteからログを読み込む
+	$r_arr = read_log_from_sqlite($no);
+	if(empty($r_arr)){
 		error($en? 'The article does not exist.':'記事がありません。');
 	}
 	check_open_no($no);
-	$rp=fopen(LOG_DIR."{$no}.log","r");
-	while ($line = fgets($rp)) {
+	$time = '';
+	foreach($r_arr as $line) {
 		if(!trim($line)){
 			continue;
 		}
@@ -1288,7 +1233,6 @@ function download_app_dat(): void {
 			} 
 		}
 	}
-	closeFile ($rp);
 	$time=basename($time);
 	$pchext = check_pch_ext(IMG_DIR.$time,['upload'=>true]);
 	$pchext=basename($pchext);
@@ -1398,44 +1342,26 @@ function img_replace(): void {
 		error($en?'Please attach an image.':'画像を添付してください。');
 	}
 	//ログ読み込み
-	if(!is_file(LOG_DIR."{$no}.log")){
-
+	// SQLiteから全体ログを読み込む
+	$alllog_arr = read_alllog_from_sqlite();
+	
+	if(empty($alllog_arr)){
+		if($is_upload_img){//該当記事が無い時はエラー
+			error($en?'This operation has failed.':'失敗しました。');
+		} 
+		location_paintcom();//該当記事が無い時は新規投稿。
+	}
+	
+	// SQLiteからログを読み込む
+	$r_arr = read_log_from_sqlite($no);
+	
+	if(empty($r_arr)){
 		if($is_upload_img){//該当記事が無い時はエラー
 			error($en? 'The article does not exist.':'記事がありません。');
 		} 
 		location_paintcom();//該当記事が無い時は新規投稿。
 	}
-
-	chmod(LOG_DIR."alllog.log",0600);
-	$fp=fopen(LOG_DIR."alllog.log","r+");
-	(array)$flock_option = $is_upload_img ? []: ['paintcom'=>true];
-	file_lock($fp, LOCK_EX,$flock_option);
-
-	$alllog_arr = create_array_from_fp($fp);
-
-	if(empty($alllog_arr)){
-		closeFile($fp);
-		if($is_upload_img){//該当記事が無い時はエラー
-			error($en?'This operation has failed.':'失敗しました。');
-		} 
-		location_paintcom();//該当記事が無い時は新規投稿。
-	}
 	check_open_no($no);
-	chmod(LOG_DIR."{$no}.log",0600);
-	$rp=fopen(LOG_DIR."{$no}.log","r+");
-	(array)$flock_option = $is_upload_img ? []: ['paintcom'=>true];
-	file_lock($rp, LOCK_EX,$flock_option);
-
-	$r_arr = create_array_from_fp($rp);
-
-	if(empty($r_arr)){
-		closeFile($rp);
-		closeFile($fp);
-		if($is_upload_img){//該当記事が無い時はエラー
-			error($en?'This operation has failed.':'失敗しました。');
-		} 
-		location_paintcom();//該当記事が無い時は新規投稿。
-	}
 
 	$flag=false;
 
@@ -1632,12 +1558,10 @@ function img_replace(): void {
 			location_paintcom();//該当記事が無い時は新規投稿。
 		}
 
-		writeFile($fp,implode("",$alllog_arr));
-
+		// 全体ログの更新はSQLiteで行うため、ファイルへの書き込みは不要
 	}
-	writeFile($rp, implode("", $r_arr));
-	closeFile($rp);
-	closeFile($fp);
+	// SQLiteにログを更新
+	update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $log_img_hash, $tool, $pchext, $host, $userid, $hash, $oya);
 	
 	//旧ファイル削除
 	delete_files($_imgfile, $_time);
@@ -1947,23 +1871,14 @@ function edit(): void {
 	}
 
 	//ログ読み込み
-	if(!is_file(LOG_DIR."{$no}.log")){
-		error($en? 'The article does not exist.':'記事がありません。');
-	}
-	chmod(LOG_DIR."alllog.log",0600);
-	$fp=fopen(LOG_DIR."alllog.log","r+");
-	file_lock($fp, LOCK_EX);
-
+	// SQLiteから全体ログを読み込む
+	$alllog_arr = read_alllog_from_sqlite();
+	
 	check_open_no($no);
-	chmod(LOG_DIR."{$no}.log",0600);
-	$rp=fopen(LOG_DIR."{$no}.log","r+");
-	file_lock($rp, LOCK_EX);
-
-	$r_arr = create_array_from_fp($rp);
-
+	// SQLiteからログを読み込む
+	$r_arr = read_log_from_sqlite($no);
+	
 	if(empty($r_arr)){
-		closeFile($rp);
-		closeFile($fp);
 		error($en?'This operation has failed.':'失敗しました。');
 	}
 
@@ -1988,8 +1903,6 @@ function edit(): void {
 		}
 	}
 	if(!$flag){
-		closeFile($rp);
-		closeFile($fp);
 		error($en?'This operation has failed.':'失敗しました。');
 	}
 
@@ -2002,12 +1915,11 @@ function edit(): void {
 	$com = $formatted_post['com'];
 
 	if(!$_imgfile && !$com && !$admindel){
-		closeFile($rp);
-		closeFile($fp);
 		error($en?'Please write something.':'何か書いて下さい。');
 	}
 
-	$alllog_arr = create_array_from_fp($fp);
+	// SQLiteから全体ログを読み込む（再取得）
+	$alllog_arr = read_alllog_from_sqlite();
 
 	$n= 5;
 	$chk_log_arr=array_slice($alllog_arr,0,$n,false);
@@ -2055,8 +1967,6 @@ function edit(): void {
 		$newline = "$_no\t$sub\t$name\t$verified\t$strcut_com\t$url\t$_imgfile\t$_w\t$_h\t$thumbnail\t$_painttime\t$_log_img_hash\t$_tool\t$pchext\t$_time\t$_first_posted_time\t$host\t$userid\t$hash\toya\n";
 
 		if(empty($alllog_arr)){
-			closeFile($rp);
-			closeFile($fp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 		$flag=false;
@@ -2078,10 +1988,6 @@ function edit(): void {
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 
-		// 全体ログの更新はSQLiteで行うため、ファイルへの書き込みは不要
-		// ただし後方互換性のため残す
-		writeFile($fp,implode("",$alllog_arr));
-		
 		// SQLiteの全体ログも更新
 		$strcut_com = mb_strcut($com, 0, 120);
 		update_log_in_sqlite($no, $_time, $sub, $name, $verified, $strcut_com, $url, $_imgfile, $_w, $_h, $thumbnail, $_painttime, $_log_img_hash, $_tool, $pchext, $host, $userid, $hash, 'oya');
@@ -2089,12 +1995,6 @@ function edit(): void {
 	
 	// SQLiteのレスログも更新
 	update_log_in_sqlite($_no, $_time, $sub, $name, $verified, $com, $url, $_imgfile, $_w, $_h, $thumbnail, $_painttime, $_log_img_hash, $_tool, $pchext, $host, $userid, $hash, $_oya);
-	
-	// ファイルログも残す（後方互換性のため）
-	writeFile($rp, implode("", $r_arr));
-
-	closeFile($rp);
-	closeFile($fp);
 
 	unset($_SESSION['userdel']);
 	delete_res_cache();
@@ -2227,29 +2127,20 @@ function del(): void {
 					delete_files ($_imgfile, $_time);//一連のファイルを削除
 					
 				}
-				closeFile ($rp);
-				safe_unlink(LOG_DIR.$no.'.log');
-
+				// SQLiteからログを削除
+				delete_log_from_sqlite($no);
 		}else{
 				delete_files ($imgfile, $time);//該当記事の一連のファイルを削除
 				$deleted_sub = $en? 'No subject':'無題';
-				$newline="$no\t$deleted_sub\t\t\t\t\t\t\t\t\t\t\t\t\t$time_\t$first_posted_time_\t$host_\t\t$hash_\toya\n";
-				$alllog_arr[$j]=$newline;
-				$r_arr[0]=$newline;
-				writeFile ($rp,implode("",$r_arr));
-				closeFile ($rp);
+				// SQLiteのログを更新（削除済みマーク）
+				update_log_in_sqlite($no, $time_, $deleted_sub, '', '', '', '', '', '', '', '', '', '', '', $host_, '', $hash_, 'oya');
 		}
 
-		writeFile($fp,implode("",$alllog_arr));
-
 	}else{//レスの削除のみ
-
-		unset($r_arr[$i]);
+		// SQLiteからログを削除
+		delete_log_from_sqlite($no);
 		delete_files ($imgfile, $time);//一連のファイルを削除
-		writeFile ($rp,implode("",$r_arr));
-		closeFile ($rp);
 	}
-	closeFile($fp);
 
 	unset($_SESSION['userdel']);
 	//多重送信防止
@@ -2372,19 +2263,6 @@ function view(): void {
 	// SQLiteから全体ログを読み込む
 	$alllog_lines = read_alllog_from_sqlite();
 	
-	if(empty($alllog_lines)){
-		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-		$fp=fopen(LOG_DIR."alllog.log","r");
-		$alllog_lines = [];
-		while ($_line = fgets($fp)) {
-			if(!trim($_line)){
-				continue;
-			}
-			$alllog_lines[] = $_line;
-		}
-		fclose($fp);
-	}
-	
 	$article_nos=[];
 	$count_alllog=0;
 	foreach ($alllog_lines as $_line) {
@@ -2413,14 +2291,7 @@ function view(): void {
 			$lines = read_log_from_sqlite($no);
 			
 			if(empty($lines)){
-				// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-				if(!is_file(LOG_DIR."{$no}.log")){
-					continue;	
-				}
-				check_open_no($no);
-				$rp = fopen(LOG_DIR."{$no}.log", "r");
-				$lines=create_array_from_fp($rp);
-				fclose($rp);
+				continue;	
 			}
 			
 			$_res=[];
@@ -2512,7 +2383,8 @@ function res_view_other_works($resno): array
 {
 	global $view_other_works;
 
-	$fp = fopen(LOG_DIR . "alllog.log", "r");
+	// SQLiteから全体ログを読み込む
+	$alllog_lines = read_alllog_from_sqlite();
 	$count_alllog = 0;
 	$i = 0;
 	$j = 0;
@@ -2520,7 +2392,7 @@ function res_view_other_works($resno): array
 	$articles1 = [];
 	$articles2 = [];
 
-	while ($line = fgets($fp)) {
+	foreach ($alllog_lines as $line) {
 		if (!trim($line)) {
 			continue;
 		}
@@ -2536,9 +2408,8 @@ function res_view_other_works($resno): array
 		}
 		++$j;
 	}
-	rewind($fp);
 	$j = 0;
-	while ($line = fgets($fp)) { //メモリ消費量を削減するため二度ループ
+	foreach ($alllog_lines as $line) { //メモリ消費量を削減するため二度ループ
 		if (!trim($line)) {
 			continue;
 		}
@@ -2550,14 +2421,14 @@ function res_view_other_works($resno): array
 		}
 		++$j;
 	}
-	fclose($fp);
 
 	$next = $articles2[$i + 1] ?? '';
 	$prev = $articles1[$i - 1] ?? '';
 	$next = $next ? (create_res(explode("\t", trim($next)), ['catalog' => true])) : [];
 	$prev = $prev ? (create_res(explode("\t", trim($prev)), ['catalog' => true])) : [];
-	$next = (!empty($next) && is_file(LOG_DIR . "{$next['no']}.log")) ? $next : [];
-	$prev = (!empty($prev) && is_file(LOG_DIR . "{$prev['no']}.log")) ? $prev : [];
+	// SQLiteから確認
+	$next = (!empty($next) && !empty(read_log_from_sqlite($next['no']))) ? $next : [];
+	$prev = (!empty($prev) && !empty(read_log_from_sqlite($prev['no']))) ? $prev : [];
 
 	$rr1 = [];
 	$rr2 = [];
@@ -2624,19 +2495,12 @@ function res (): void {
 
 	unset ($_SESSION['enableappselect']);
 
-	// SQLiteからログを読み込む
-	$lines = read_log_from_sqlite($resno);
-	
-	if(empty($lines)){
-		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-		if(!is_file(LOG_DIR."{$resno}.log")){
+		// SQLiteからログを読み込む
+		$lines = read_log_from_sqlite($resno);
+		
+		if(empty($lines)){
 			error($en?'Thread does not exist.':'スレッドがありません');	
 		}
-		check_open_no($resno);
-		$rp = fopen(LOG_DIR."{$resno}.log", "r");
-		$lines = create_array_from_fp($rp);
-		fclose($rp);
-	}
 	
 	$rresname = [];
 	$resname = '';

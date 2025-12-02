@@ -38,18 +38,7 @@ class misskey_note{
 		$r_arr = read_log_from_sqlite($no);
 		
 		if(empty($r_arr)){
-			// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-			if(!is_file(LOG_DIR."{$no}.log")){
-				error($en? 'The article does not exist.':'記事がありません。');
-			}
-			$rp=fopen(LOG_DIR."{$no}.log","r");
-			file_lock($rp, LOCK_EX);
-			$r_arr = create_array_from_fp($rp);
-			closeFile($rp);
-		}
-
-		if(empty($r_arr)){
-			error($en?'This operation has failed.':'失敗しました。');
+			error($en? 'The article does not exist.':'記事がありません。');
 		}
 		$find=false;
 		$resid="";
@@ -115,18 +104,7 @@ class misskey_note{
 		$r_arr = read_log_from_sqlite($no);
 		
 		if(empty($r_arr)){
-			// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
-			if(!is_file(LOG_DIR."{$no}.log")){
-				error($en? 'The article does not exist.':'記事がありません。');
-			}
-			$rp=fopen(LOG_DIR."{$no}.log","r");
-			file_lock($rp, LOCK_EX);
-			$r_arr = create_array_from_fp($rp);
-			closeFile($rp);
-		}
-
-		if(empty($r_arr)){
-			error($en?'This operation has failed.':'失敗しました。');
+			error($en? 'The article does not exist.':'記事がありません。');
 		}
 
 		$flag=false;

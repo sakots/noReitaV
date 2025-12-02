@@ -319,7 +319,9 @@ function branch_destination_of_location(): void {
 	$q = $q ?? '';
 
 	if($resno){
-		if(!is_file(LOG_DIR.$resno.'.log')){
+		// SQLiteからログを確認
+		$lines = read_log_from_sqlite($resno);
+		if(empty($lines)){
 			redirect('./');
 		}
 		$resid = $_SESSION['current_resid'] ?? "";//intの範囲外
@@ -365,15 +367,13 @@ function check_cont_pass(): void {
 	$pwd=t(filter_input_data('POST', 'pwd'));//パスワードを取得
 	$pwd=$pwd ? $pwd : t(filter_input_data('COOKIE','pwdc'));//未入力ならCookieのパスワード
 	$flag = false;
-	if(!is_file(LOG_DIR."$no.log")){
+	// SQLiteからログを読み込む
+	$r_arr = read_log_from_sqlite($no);
+	if(empty($r_arr)){
 		error($en? 'The article does not exist.':'記事がありません。');
 	}
 	check_open_no($no);
-	$rp=fopen(LOG_DIR."$no.log","r");
-	if(!$rp){
-		error($en?'This operation has failed.':'失敗しました。');
-	}
-	while ($line = fgets($rp)) {
+	foreach($r_arr as $line) {
 		if(!trim($line)){
 			continue;
 		}
@@ -386,7 +386,6 @@ function check_cont_pass(): void {
 			break;
 		}
 	}
-	closeFile ($rp);
 	if(!$flag){
 		error($en?'password is wrong.':'パスワードが違います。');
 	}
@@ -555,16 +554,18 @@ function create_chk_lins($chk_log_arr,$resno): array {
 	//条件分岐で新規投稿に変更になった時のエラー回避
 	foreach($chk_resnos as $chk_resno){
 		//$resnoのログファイルは開かない
-		if(($chk_resno!==$resno)&&is_file(LOG_DIR."{$chk_resno}.log")){
-			check_open_no($chk_resno);
-			$cp=fopen(LOG_DIR."{$chk_resno}.log","r");
-			while($line=fgets($cp)){
-				if(!trim($line)){
-					continue;
+		if(($chk_resno!==$resno)){
+			// SQLiteからログを読み込む
+			$chk_log_lines = read_log_from_sqlite($chk_resno);
+			if(!empty($chk_log_lines)){
+				check_open_no($chk_resno);
+				foreach($chk_log_lines as $line){
+					if(!trim($line)){
+						continue;
+					}
+					$chk_lines[]=$line;
 				}
-				$chk_lines[]=$line;
 			}
-			closefile($cp);
 		}
 	}
 	return $chk_lines;
@@ -1254,10 +1255,6 @@ function init(): void {
 	check_dir(__DIR__."/log");
 	check_dir(__DIR__."/webp");
 	check_dir(__DIR__."/theme/cache");
-	if(!is_file(LOG_DIR.'alllog.log')){
-	file_put_contents(LOG_DIR.'alllog.log','',FILE_APPEND|LOCK_EX);
-	chmod(LOG_DIR.'alllog.log',0600);
-	}
 	
 	// SQLiteデータベースの初期化
 	try {
