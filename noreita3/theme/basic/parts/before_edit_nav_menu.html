@@ -1,0 +1,14 @@
+<!-- 編集画面･Misskeyノートのメニュー -->
+<span>
+	<?php if($resno):?>
+		[<a href="./?resno=<?=h($resno)?>&resid=<?=h($resid ?? '')?>"><?php if($en):?>Return to thread<?php else:?>スレッドにもどる<?php endif;?></a>]
+	<?php else:?>
+		[<a href="./?page=<?=h($page)?>"><?php if($en):?>Return<?php else:?>掲示板にもどる<?php endif;?></a>]
+	<?php endif;?>
+	</span>
+<?php if($userdel || $admindel):?>
+	<span>
+			[<a href="./?mode=logout"><?php if($en):?>Exit edit mode<?php else:?>編集モード終了<?php endif;?></a>]
+	</span>
+<?php endif;?>
+

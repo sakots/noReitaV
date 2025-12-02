@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+
+<title>[<?= h($out[0][0]['no'])?>] <?= h($out[0][0]['sub'])?> by <?= h($out[0][0]['name'])?> -  <?=h($boardname)?></title>
+</head>
+<body>
+
+<div class="container" id="top">
+<!-- 閲覧注意警告 -->
+<?php include __DIR__.'/parts/form_view_nsfw.html'?>
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<nav class="menu_wrap" >
+	
+<?php if(!($adminpost||$admindel) && !$out[0][0]['check_elapsed_days']||!$use_misskey_note){
+	$resform=false;//指定した日数を超えた古いスレッドはMisskey Noteのリンクを出さない
+	$misskey_note=false;
+
+}?>
+
+<span>[<a href="./?resno=<?= h($out[0][0]['no'])?>"><?php if($en):?>Return to thread<?php else:?>スレッドにもどる<?php endif;?></a>]</span>
+
+<?php if($resform):?>
+	<span>
+	<?php if($misskey_note):?>
+		[<a href="./?resno=<?= h($out[0][0]['no'])?>&res_catalog=on"><?php if($en):?>Catalog<?php else:?>カタログ<?php endif;?></a>]
+	<?php else:?>
+		[<a href="./?resno=<?= h($out[0][0]['no'])?>&misskey_note=on"><span class="icon-Simpleicons-Team-Simple-Misskey"></span> <?php if($en):?>Note<?php else:?>ノート<?php endif;?></a>]
+	<?php endif;?>
+<?php endif;?>
+<a href="#bottom">▽</a>
+<?php if($resform):?>
+	</span>
+<?php endif;?>
+</nav>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+<?php if($misskey_note):?>
+<h2 class="article_title"><?php if($en):?>Which image would you like to note on Misskey?<?php else:?>どの画像をMisskeyにノートしますか?<?php endif;?></h2>
+<?php endif;?>
+<hr>
+<h2 class="article_title"><a href="./?resno=<?= h($out[0][0]['no'])?>">[<?= h($out[0][0]['no'])?>] <?= h($out[0][0]['sub'])?></a></h2>
+<hr>
+<div class="catalog_wrap">
+<!-- 画像一覧 -->
+<?php include 'parts/catalog_images_loop.html';?>
+</div>
+
+<hr>
+
+	<div class="copy">
+		<div class="left_wrap">
+		<?php include __DIR__.'/parts/admin_login_link.html';?>
+	</div>
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>

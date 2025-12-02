@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+<title><?=h($boardname)?></title> 
+</head>
+<body>
+
+<div class="container" id="top">
+
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<nav class="menu_wrap">
+<?php include __DIR__.'/parts/before_edit_nav_menu.html';?>
+ <a href="#bottom">▽</a>
+	</nav>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+	<h2 class="article_title"><?php if($en):?>Note to Misskey<?php else:?>Misskeyにノート<?php endif;?></h2>
+
+
+<hr>
+<?php include __DIR__.'/parts/edit_form_res_loop.html'?>
+			<div class="clear"></div>
+
+		<form action="./" method="POST" enctype="multipart/form-data" class="misskey_form" id="image_rep" onsubmit="return res_form_submit(event,'image_rep')">
+	<div id="error_message_imgrep"></div>
+<textarea name="cw" class="post_cw" id="cw" placeholder="<?php if($en):?>CW<?php else:?>CW 注釈<?php endif;?>"></textarea><br>
+<textarea name="com" class="post_com" placeholder="<?php if($en):?>Comment<?php else:?>コメント<?php endif;?>"></textarea><br>
+<input type="hidden" name="token" value="<?=h($token)?>">
+<input type="hidden" name="no" value="<?= h($ress[0]['no'])?>">
+<input type="hidden" name="paintsec" value="<?=h($res['paintsec'])?>">
+<input type="hidden" name="abbr_toolname" value="<?=h($res['abbr_toolname'])?>">
+<input type="hidden" name="src_image" value="<?=h($res['img'])?>">
+<input type="hidden" name="mode" value="create_misskey_note_sessiondata">
+<span>
+	<input type="checkbox" name="article_url_link" id="article_url_link" value="on" checked="checked"><label for="article_url_link"><?php if($en):?>Link the article URL<?php else:?>記事のURLをリンク<?php endif;?></label>
+</span>
+<?php if(is_numeric($res['paintsec'])):?>
+<span>
+	<input type="checkbox" name="show_painttime" id="show_painttime" value="on" checked="checked"><label for="show_painttime"><?php if($en):?>Show Paint time<?php else:?>描画時間を表示<?php endif;?></label>
+</span>
+<?php endif;?>
+<span>
+	<input type="checkbox" name="hide_thumbnail" id="hide_thumbnail" value="on" checked="checked"><label for="hide_thumbnail"><?php if($en):?>Sensitive content<?php else:?>閲覧注意にする<?php endif;?></label>
+</span>
+<span>
+	<input type="checkbox" name="hide_content" id="hide_content" value="on" ><label for="hide_content"><?php if($en):?>Hide content<?php else:?>内容を隠す<?php endif;?></label>
+</span>
+<div>
+	<span class="icon-Simpleicons-Team-Simple-Misskey misskey_form_misskey_icon"></span><input type="submit" value="<?php if($en):?>Note<?php else:?>ノート<?php endif;?>" class="form_button" id="form_submit">
+</div>		
+</form>
+<!-- 内容を隠すをチェックした時に注釈のテキストエリアを表示 -->
+<script>
+document.addEventListener("DOMContentLoaded", ()=> {
+	const cw = document.getElementById('cw');
+	cw.style.display = "none";
+	const hide_content = document.getElementById('hide_content');
+	hide_content.addEventListener('change', ()=> {
+		
+		if(hide_content.checked){
+			cw.style.display = "inline-block";
+		}else{
+			cw.style.display = "none";
+		}
+	});
+});
+</script>
+
+<hr>
+	<div class="copy">
+		<div class="left_wrap">
+		<?php include __DIR__.'/parts/admin_login_link.html';?>
+	</div>
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<script>const paintcom = true;</script> 
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>

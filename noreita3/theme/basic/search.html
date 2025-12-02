@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+<link rel="stylesheet" href="<?=h($skindir)?>search.css">
+<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+<title>
+	<?php if($en):?>	
+		Displaying <?=h($pageno)?> <?=h($result_subject)?> 
+		<?php else:?>
+		<?=h($result_subject)?><?=h($img_or_com)?><?=h($pageno)?>
+	<?php endif;?>
+</title>
+</head>
+<body>
+<div class="container" id="top">
+<!-- 閲覧注意警告 -->
+<?php include __DIR__.'/parts/form_view_nsfw.html'?>
+
+	<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+		<nav class="menu_wrap">
+		<span>[<a href="./"><?php if($en):?>Return<?php else:?>掲示板にもどる<?php endif;?></a>]</span>
+				<?php if($imgsearch):?>
+					<span>[<a href="?mode=search&page=0&imgsearch=off&q=<?=h($en_q)?>&radio=<?=h($radio)?>"><?php if($en):?>Comments<?php else:?>コメント<?php endif;?></a>]</span>
+				<?php else:?>
+					<span>[<a href="?mode=search&page=0&imgsearch=on&q=<?=h($en_q)?>&radio=<?=h($radio)?>"><?php if($en):?>Images<?php else:?>イラスト<?php endif;?></a>]</span>
+				<?php endif;?>
+		</nav>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+
+		<hr>
+			<h2 class="search_h2">
+				<?php if($en):?>	
+				<span class="title_wrap">Displaying <?=h($pageno)?></span>	<?=h($result_subject)?> 
+				<?php else:?>
+				<?=h($result_subject)?><span class="title_wrap"><?=h($img_or_com)?><?=h($pageno)?></span>
+				<?php endif;?>
+			</h2>
+		<nav>
+			
+			<form method="get" action="./" class="searchform">
+			<span class="radio">
+			<input type="hidden" name="mode" value="search">
+			<input type="radio" name="radio" id="author" value="1" <?php if($radio_chk1):?>checked="checked"<?php endif;?>><label for="author"
+			class="label">
+			<?php if($en):?>Name<?php else:?>名前<?php endif;?>
+			</label>
+				<input type="radio" name="radio" id="exact" value="2" <?php if($radio_chk2):?>checked="checked"<?php endif;?>><label for="exact"
+			class="label">
+			<?php if($en):?>Exact<?php else:?>完全一致<?php endif;?>
+			</label>
+			<input type="radio" name="radio" id="fulltext" value="3" <?php if($radio_chk3):?>checked="checked"<?php endif;?>><label for="fulltext"
+				class="label">
+				<?php if($en):?>Body<?php else:?>本文題名<?php endif;?>	
+			</label>
+			</span>
+			<br>
+			<?php if($imgsearch):?>
+			<input type="hidden" name="imgsearch" value="on">
+			<?php else:?>
+			<input type="hidden" name="imgsearch" value="off">
+			<?php endif;?>
+
+			<input type="search" name="q" maxlength="100" placeholder="<?php if($en):?>Search<?php else:?>検索<?php endif;?>" value="<?=h($q)?>">
+			<input type="submit" value="<?php if($en):?>Search<?php else:?>検索<?php endif;?>">
+		</form>
+		<p></p>
+
+		</nav>
+		<!-- 反復 -->
+		<?php if(isset($out[0][0]['no'])):?>
+			<?php if($imgsearch):?>
+			<div class="catalog_wrap">
+			<!-- 画像一覧 -->
+			<?php include 'parts/catalog_images_loop.html';?>
+			</div>
+		<?php else:?>
+		<?php foreach($out as $t => $ress):?>
+			<?php foreach($ress as $i => $res):?>
+				<article>
+				<div class="s_article">
+					<div class="s_comments_title_wrap">
+					<h3><a href="./?resno=<?=h($res['no'])?>&resid=<?=h($res['first_posted_time'] ?? '')?>" target="_blank"><?=h($res['sub'])?>
+					<?=h($res['date'])?></a></h3>
+						<br>
+						<h3><span class="info_name"><a
+								href="?mode=search&page=0&q=<?=h($res['encoded_name'])?>&radio=2"
+								target="_blank"><?=h($res['name'])?></a></span></h3>
+					</div>
+					<?php if($res['img']):?>
+					<div class="s_posted_image<?php if($res['hide_thumbnail']):?> hide_thumbnail<?php endif;?>"><a href="./?resno=<?=h($res['no'])?>&resid=<?=h($res['first_posted_time'] ?? '')?>" target="_blank">
+						<?php if($res['webpimg']):?>
+						<picture>
+							<source srcset="<?=h($res['webpimg'])?>" type="image/webp">
+						<?php endif;?>
+							<?php if($res['thumbnail']):?>
+								<img src="thumbnail/<?=h($res['thumbnail'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>" <?php if($i>5):?>loading="lazy"<?php endif;?>>
+							<?php else:?>
+								<img src="src/<?=h($res['img'])?>" alt="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" title="<?=h($res['sub'])?> by <?=h($res['name'])?> <?=h($res['date'])?>" width="<?=h($res['w'])?>" height="<?=h($res['h'])?>" <?php if($i>5):?>loading="lazy"<?php endif;?>>
+							<?php endif;?>
+						<?php if($res['webpimg']):?>
+						</picture>	
+						<?php endif;?><?php if($res['hide_thumbnail']):?><span>NSFW</span><?php endif;?></a></div>
+					<?php endif;?>
+					<?=h($res['com'])?>
+					<div class="res_button_wrap">
+						<form action="./?resno=<?=h($res['no'])?>&resid=<?=h($res['first_posted_time'] ?? '')?>" method="post" target="_blank"><input type="submit" value="<?php if($en):?>View thread<?php else:?>スレッドを表示<?php endif;?>"
+							class="form_button"></form>
+					</div>
+				</div>
+			</article>
+			<?php endforeach;?>
+		<?php endforeach;?>
+		<?php endif;?>
+		<?php endif;?>
+		<p></p>
+		<?php if($imgsearch):?>
+			<p><?php if($en):?>new arrival images.<?php else:?>掲示板から新規投稿順にイラストを呼び出しています。<?php endif;?></p>
+			<?php else:?>
+			<p><?php if($en):?>new arrival comments.<?php else:?>掲示板から新規投稿順にコメントを呼び出しています。<?php endif;?></p>
+		<?php endif;?>
+		<!-- 最終更新日時 -->
+		<?php if($lastmodified):?>
+		<p>last modified: <?=h($lastmodified)?></p>
+		<?php endif;?>
+
+<nav>
+	<?php include __DIR__.'/parts/prev_next.html';?>
+	<?php include __DIR__.'/parts/paging.html';?>
+</nav>
+
+<div class="copy">
+<div class="left_wrap">
+<?php include __DIR__.'/parts/admin_login_link.html';?>
+</div>
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</div>
+</body>
+</html>

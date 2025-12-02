@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<?php include __DIR__.'/parts/html.html';?>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="<?=h($skindir)?>index.css?<?=h($petit_lot)?>">
+	<?php include __DIR__.'/parts/head_preload_css_js.html';?>
+	<?php include __DIR__.'/parts/nsfw_css_control.html';?>
+
+	<title><?=h($boardname)?></title> 
+</head>
+<body>
+<div class="container" id="top">
+<h1 class="title"><a href="./"><?=h($boardname)?></a></h1>
+<nav class="menu_wrap">
+<?php include __DIR__.'/parts/before_edit_nav_menu.html';?>
+	<a href="#bottom">▽</a>
+</nav>
+	<!-- 閲覧注意画像を隠す/隠さない -->
+	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
+<h2 class="article_title"><?php if($en):?>Note to Misskey<?php else:?>Misskeyにノート<?php endif;?></h2>
+
+<?php if(!$deny_all_posts && $out[0][0]['check_elapsed_days'] || $adminpost || $admindel):?>
+	<div id="error_message_beforedelete"></div>
+	<?php if(!($adminpost || $admindel) || $verified!=='adminpost'):?>
+	<?php if($en):?>Note to Misskey. Please enter password.<?php else:?>この画像をMisskeyにノートします。パスワードを入力してください。<?php endif;?>: 
+<?php else:?>
+<?php if($en):?>Note to Misskey.<?php else:?>この画像をMisskeyにノートします。<?php endif;?>: 
+<?php endif;?>
+<form action="./" method="POST" id="before_delete" class="aikotoba" onsubmit="return res_form_submit(event,'before_delete')">
+<?php if(!($adminpost || $admindel) || $verified!=='adminpost'):?>
+<span class="non"><input type="text" value="" autocomplete="username"></span>
+<input type="password" name="pwd" value="<?=h($pwdc)?>" autocomplete="current-password">
+<?php endif;?>
+<input type="hidden" name="mode" value="misskey_note_edit_form">
+<span class="icon-Simpleicons-Team-Simple-Misskey"></span> <input type="submit" value="<?php if($en):?>Note<?php else:?>ノート<?php endif;?>">
+</form>
+<?php else:?>
+	<div id="error_message_beforedelete"><?php if($en):?>This thread is closed.<?php else:?>このスレッドは閉じられています。<?php endif;?></div>
+<?php endif;?>
+<hr>
+<?php include __DIR__.'/parts/before_edit_del_res_loop.html';?>
+<div class="clear"></div>
+<hr>
+<div class="copy">
+<div class="left_wrap">[<a href="<?=h($home)?>">HOME</a> /
+<?php include __DIR__.'/parts/edit_to_admin_login_link.html';?>
+</div>
+
+<div class="righit_wrap">
+<?php include __DIR__.'/parts/copyright.html';?>
+</div>
+</div>
+</div>
+<div id="bottom"></div>
+<div id="page_top"><a class="icon-angles-up-solid"></a></div>
+<?php include __DIR__.'/parts/footer_js.html';?>
+</body>
+</html>
+	

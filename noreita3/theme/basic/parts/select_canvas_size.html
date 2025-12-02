@@ -1,0 +1,38 @@
+<?php
+global $pdef_w,$pdef_h,$pmax_w,$pmax_h,$pmin_w,$pmin_h,$step_of_canvas_size;
+//Cookie
+$picwc=h((string)filter_input_data('COOKIE','picwc'));
+$pichc=h((string)filter_input_data('COOKIE','pichc'));
+//Cookieが存在しない時はデフォルトのキャンバスサイズ
+$picwc= $picwc ? $picwc : $pdef_w;
+$pichc= $pichc ? $pichc : $pdef_h;
+//キャンバスサイズの増減値
+$step_of_canvas_size = is_numeric($step_of_canvas_size) ? (int)$step_of_canvas_size : 50;
+?>
+<select name="picw" title="<?php if($en):?>Width<?php else:?>幅<?php endif;?>" class="canvas_select">
+	<?php
+	//幅 300から、$pmax_w で設定した最大値まで。
+		for($i = $pmin_w; $i <=$pmax_w ; $i+=$step_of_canvas_size){//$step_of_canvas_sizeで設定された値ずつ増える
+		if($picwc==$i){//デフォルトサイズ
+		echo'<option value="'.h($i).'" selected>'.h($i).'</option>';
+		}
+		else{
+		echo'<option value="'.h($i).'">'.h($i).'</option>';
+		}
+		}
+	?>
+</select>
+	x
+<select name="pich" title="<?php if($en):?>Height<?php else:?>高さ<?php endif;?>" class="canvas_select">
+	<?php
+	//高さ 300から、PMAX_H で設定した最大値まで。
+		for($i = $pmin_h; $i <=$pmax_h ; $i+=$step_of_canvas_size){//$step_of_canvas_sizeで設定された値ずつ増える
+		if($pichc==$i){//デフォルトサイズ
+		echo'<option value="'.h($i).'" selected>'.h($i).'</option>';
+		}
+		else{
+		echo'<option value="'.h($i).'">'.h($i).'</option>';
+		}
+		}
+	?>
+</select>
