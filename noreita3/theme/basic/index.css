@@ -58,7 +58,7 @@ https://developer.mozilla.org/ja/docs/Web/CSS/Using_CSS_custom_properties
     --form-input-border-color: rgb(118, 118, 118);
 }
 
-.darkmode {
+.dark_mode {
     /* ダークモードの配色 */
 
     /* 文字色 */

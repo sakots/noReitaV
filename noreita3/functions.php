@@ -282,13 +282,13 @@ function set_nsfw_show_hide(): void {
 		setcookie("p_n_set_nsfw_show_hide","0",time()+(60*60*24*365),"","",false,true);
 	}
 }
-function set_darkmode(): void {
+function set_dark_mode(): void {
 
-	$darkmode=(bool)filter_input_data('POST','darkmode');
-	if($darkmode){
-		setcookie("p_n_set_darkmode","1",time()+(60*60*24*365),"","",false,true);
+	$dark_mode=(bool)filter_input_data('POST','dark_mode');
+	if($dark_mode){
+		setcookie("p_n_set_dark_mode","1",time()+(60*60*24*365),"","",false,true);
 	}else{
-		setcookie("p_n_set_darkmode","0",time()+(60*60*24*365),"","",false,true);
+		setcookie("p_n_set_dark_mode","0",time()+(60*60*24*365),"","",false,true);
 	}
 }
 
@@ -889,12 +889,10 @@ function make_thumbnail($imgfile,$time,$max_w,$max_h): string {
 }
 
 //アップロード画像のファイルサイズが大きすぎる時は削除
-function delete_file_if_sizeexceeds($upfile,$fp,$rp): void {
+function delete_file_if_sizeexceeds($upfile): void {
 	global $max_kb,$en;
 	clearstatcache();
 	if(filesize($upfile) > $max_kb*1024){
-		closeFile($fp);
-		closeFile($rp);
 		safe_unlink($upfile);
 		error($en? "Upload failed.\nFile size exceeds {$max_kb}kb.":"アップロードに失敗しました。\nファイル容量が{$max_kb}kbを超えています。");
 	}

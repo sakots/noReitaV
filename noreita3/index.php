@@ -137,8 +137,8 @@ $step_of_canvas_size = $step_of_canvas_size ?? 50;
 $use_url_input_field = $use_url_input_field ?? true;
 $max_px = $max_px ?? 1024;
 $nsfw_checked = $nsfw_checked ?? true;
-$use_darkmode = $use_darkmode ?? true;
-$darkmode_by_default = $darkmode_by_default ?? false;
+$use_dark_mode = $use_dark_mode ?? true;
+$dark_mode_by_default = $dark_mode_by_default ?? false;
 $sitename = $sitename ?? '';
 $fetch_articles_to_skip = $fetch_articles_to_skip ?? true;
 $all_hide_painttime  =  $all_hide_painttime  ?? false;
@@ -167,8 +167,8 @@ if($x_frame_options_deny) {
 	header("Content-Security-Policy: frame-ancestors 'none';");
 }
 //ダークモード
-if(!isset($_COOKIE["p_n_set_darkmode"]) && $darkmode_by_default) {
-	setcookie("p_n_set_darkmode","1",time()+(60*60*24*180),"","",$httpsonly,true);
+if(!isset($_COOKIE["p_n_set_dark_mode"]) && $dark_mode_by_default) {
+	setcookie("p_n_set_dark_mode","1",time()+(60*60*24*180),"","",$httpsonly,true);
 }
 
 //初期化
@@ -224,8 +224,8 @@ switch($mode){
 		return view_nsfw();
 	case 'set_nsfw_show_hide':
 		return set_nsfw_show_hide();
-	case 'set_darkmode':
-		return set_darkmode();
+	case 'set_dark_mode':
+		return set_dark_mode();
 	case 'logout_admin':
 		return logout_admin();
 	case 'logout':
@@ -546,7 +546,7 @@ function post(): void {
 		//サイズオーバの時に変換したwebpのほうがファイル容量が小さくなっていたら元のファイルを上書き
 		convert_andsave_if_smaller_png2webp($is_upload_img,$time.'.tmp',$time);
 		if($is_upload_img) { //アップロード画像のファイルサイズが大きすぎる時は削除
-			delete_file_if_sizeexceeds($upfile,$fp,$rp);
+			delete_file_if_sizeexceeds($upfile);
 		}
 
 		$ext = get_image_type($upfile);
@@ -1367,8 +1367,6 @@ function img_replace(): void {
 
 				if($is_upload_img && ($_tool !== 'upload') || $is_painted_img && ($_tool === 'upload')) {
 					safe_unlink($tempfile);
-					closeFile($rp);
-					closeFile($fp);
 					error($en?'This operation has failed.':'失敗しました。');
 				}
 				if(($is_upload_img && $admindel) || (($adminpost||$admindel) && $_verified === 'adminpost') || ($pwd && password_verify($pwd,$_hash))){
@@ -1381,8 +1379,6 @@ function img_replace(): void {
 	}
 	if($flag && !check_elapsed_days($_time)&&(!$adminpost && !$admindel)){//指定日数より古い画像差し換えは新規投稿にする
 
-		closeFile($rp);
-		closeFile($fp);
 		if($is_upload_img){
 			error($en?'This operation has failed.':'失敗しました。');
 		} 
@@ -1390,8 +1386,6 @@ function img_replace(): void {
 	}
 
 	if(!$flag){
-		closeFile($rp);
-		closeFile($fp);
 		if($is_upload_img){//該当記事が無い時はエラー
 			error($en?'This operation has failed.':'失敗しました。');
 		} 
@@ -1404,8 +1398,6 @@ function img_replace(): void {
 		$move_uploaded = move_uploaded_file($up_tempfile,$upfile);
 		if(!$move_uploaded){//アップロード成功なら続行
 			safe_unlink($up_tempfile);
-			closeFile($rp);
-			closeFile($fp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 		//Exifをチェックして画像が回転している時と位置情報が付いている時は上書き保存
@@ -1416,8 +1408,6 @@ function img_replace(): void {
 	}
 
 	if(!is_file($upfile)){
-		closeFile($rp);
-		closeFile($fp);
 		if($is_upload_img){
 			error($en?'This operation has failed.':'失敗しました。');
 		}
@@ -1431,34 +1421,30 @@ function img_replace(): void {
 	convert_andsave_if_smaller_png2webp($is_upload_img,$time.'.tmp',$time);
 
 	if($is_upload_img){//アップロード画像のファイルサイズが大きすぎる時は削除
-		delete_file_if_sizeexceeds($upfile,$fp,$rp);
+		delete_file_if_sizeexceeds($upfile);
 	}
 
 	$imgext = get_image_type($upfile);
 
 	if (!$imgext) {
-		closeFile($fp);
-		closeFile($rp);
 		safe_unlink($upfile);
 		error($en? 'This file is an unsupported format.':'対応していないファイル形式です。');
 	}
 	list($w, $h) = getimagesize($upfile);
-	$up_img_hash=substr(hash_file('sha256', $upfile), 0, 32);
+	$up_img_hash = substr(hash_file('sha256', $upfile), 0, 32);
 	
-	//チェックするスレッド数。 
-	$n= 15;
-	$chk_log_arr=array_slice($alllog_arr,0,$n,false);
+	//チェックするスレッド数。
+	$n = 15;
+	$chk_log_arr = array_slice($alllog_arr,0,$n,false);
 	//$n行分の全体ログをもとにスレッドのログファイルを開いて配列を作成
 	$chk_lines = create_chk_lins($chk_log_arr,$no);//取得済みの$noの配列を除外
-	$chk_images=array_merge($chk_lines,$r_arr);
-	$m2time=microtime2time($time);
-	foreach($chk_images as $chk_line){
+	$chk_images = array_merge($chk_lines,$r_arr);
+	$m2time = microtime2time($time);
+	foreach($chk_images as $chk_line) {
 		list($chk_no,$chk_sub,$chk_name,$chk_verified,$chk_com,$chk_url,$chk_imgfile,$chk_w,$chk_h,$chk_thumbnail,$chk_painttime,$chk_log_img_hash,$chk_tool,$chk_pchext,$chk_time,$chk_first_posted_time,$chk_host,$chk_userid,$chk_hash,$chk_oya_)=explode("\t",trim($chk_line));
 
 		if($is_upload_img && ($m2time === microtime2time($chk_time))){//投稿時刻の重複回避
 			safe_unlink($upfile);
-			closeFile($fp);
-			closeFile($rp);
 			error($en? 'Please wait a little.':'少し待ってください。');
 		}
 		if(!$is_upload_img && ((string)$time === (string)$chk_time)){
@@ -1466,8 +1452,6 @@ function img_replace(): void {
 		}
 		if(!$admindel && $is_upload_img && ($chk_log_img_hash && ($chk_log_img_hash === $up_img_hash))){
 			safe_unlink($upfile);
-			closeFile($fp);
-			closeFile($rp);
 			error($en?'Image already exists.':'同じ画像がありました。');
 		}
 	}
@@ -1477,8 +1461,6 @@ function img_replace(): void {
 	$imgfile = $time.$imgext;
 	rename($upfile,IMG_DIR.$imgfile);
 	if(!is_file(IMG_DIR.$imgfile)){
-		closeFile($rp);
-		closeFile($fp);
 		error($en?'This operation has failed.':'失敗しました。');
 	}
 	chmod(IMG_DIR.$imgfile,0606);
@@ -1544,8 +1526,6 @@ function img_replace(): void {
 			$flag=true;
 		}
 		if(!$flag){
-			closeFile($rp);
-			closeFile($fp);
 			safe_unlink(IMG_DIR.$imgfile);
 			if($is_upload_img){//該当記事が無い時はエラー
 				error($en?'This operation has failed.':'失敗しました。');
@@ -1926,8 +1906,6 @@ function edit(): void {
 			list($_no_,$_sub_,$_name_,$_verified_,$_com_,$_url_,$_imgfile_,$_w_,$_h_,$_thumbnail_,$_painttime_,$_log_img_hash_,$_tool_,$_pchext_,$_time_,$_first_posted_time_,$_host_,$_userid_,$_hash_,$_oya_)=explode("\t",trim($line));
 
 			if(!$admindel && ($userid===$_userid_) && ($id!==$_time_) && ($com && ($com!==$_com) && ($com === $_com_))){
-				closeFile($fp);
-				closeFile($rp);
 				error($en?'Post once by this comment.':'同じコメントがありました。');
 			}
 		}
@@ -1978,8 +1956,6 @@ function edit(): void {
 			$flag=true;
 		}
 		if(!$flag){
-			closeFile($rp);
-			closeFile($fp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 

@@ -1,7 +1,7 @@
-<?php global $use_darkmode,$darkmode_by_default;?>
-<?php $darkmode = (bool)filter_input_data('COOKIE','p_n_set_darkmode');?>
+<?php global $use_dark_mode,$dark_mode_by_default;?>
+<?php $dark_mode = (bool)filter_input_data('COOKIE','p_n_set_dark_mode');?>
 <html
-<?php if(isset($use_darkmode) && $use_darkmode && ($darkmode||!isset($_COOKIE["p_n_set_darkmode"])&&isset($darkmode_by_default) && $darkmode_by_default)):?>
-class="darkmode"
+<?php if(isset($use_dark_mode) && $use_dark_mode && ($dark_mode||!isset($_COOKIE["p_n_set_dark_mode"])&&isset($dark_mode_by_default) && $dark_mode_by_default)):?>
+class="dark_mode"
 <?php endif;?>
 >
