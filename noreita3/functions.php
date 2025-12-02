@@ -1733,9 +1733,6 @@ function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, 
 		// ログハッシュをext02に保存
 		$ext02 = $log_hash;
 		
-		// パスワードハッシュをext03に保存
-		$ext03 = $hash;
-		
 		// 投稿時刻をマイクロ秒から秒に変換
 		$created_time = microtime2time($time);
 		$modified_time = microtime2time($first_posted_time);
@@ -1757,7 +1754,7 @@ function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, 
 			$host,
 			'',
 			$userid,
-			'',
+			$hash, // パスワードハッシュをpwdに保存
 			$painttime ? (int)$painttime : null,
 			$time,
 			$imgfile,
@@ -1771,7 +1768,7 @@ function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, 
 			'',
 			$ext01,
 			$ext02,
-			$ext03,
+			'', // ext03は空に（後方互換性のため残す）
 			''
 		]);
 		
@@ -1812,7 +1809,8 @@ function read_log_from_sqlite($no): array {
 			$oya = ($row['thread'] === 'o') ? 'oya' : 'res';
 			$thumbnail = $row['ext01'] ?? '';
 			$log_hash = $row['ext02'] ?? '';
-			$hash = $row['ext03'] ?? '';
+			// パスワードハッシュはpwdから取得
+			$hash = $row['pwd'];
 			
 			$line = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 				$row['comid'],
@@ -1867,7 +1865,8 @@ function read_alllog_from_sqlite(): array {
 			$verified = ($row['admins'] === '1') ? 'adminpost' : '';
 			$thumbnail = $row['ext01'] ?? '';
 			$log_hash = $row['ext02'] ?? '';
-			$hash = $row['ext03'] ?? '';
+			// パスワードハッシュはpwdから取得（後方互換性のためext03もチェック）
+			$hash = $row['pwd'];
 			
 			$line = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\toya\n",
 				$row['comid'],
@@ -1912,9 +1911,8 @@ function update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $i
 		$admins = ($verified === 'adminpost') ? '1' : '0';
 		$ext01 = $thumbnail;
 		$ext02 = $log_hash;
-		$ext03 = $hash;
 		
-		$stmt = $db->prepare("UPDATE tlog SET modified = ?, sub = ?, a_name = ?, admins = ?, com = ?, a_url = ?, picfile = ?, img_w = ?, img_h = ?, ext01 = ?, psec = ?, ext02 = ?, tool = ?, pchfile = ?, host = ?, id = ?, ext03 = ? WHERE comid = ? AND utime = ?");
+		$stmt = $db->prepare("UPDATE tlog SET modified = ?, sub = ?, a_name = ?, admins = ?, com = ?, a_url = ?, picfile = ?, img_w = ?, img_h = ?, ext01 = ?, psec = ?, ext02 = ?, tool = ?, pchfile = ?, host = ?, id = ?, pwd = ? WHERE comid = ? AND utime = ?");
 		
 		$updated_time = microtime2time($time);
 		$pchfile = $pchext && in_array($pchext, ['.pch', '.spch', '.chi', '.psd', '.tgkr']) ? $time . $pchext : '';
@@ -1936,7 +1934,7 @@ function update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $i
 			$pchfile,
 			$host,
 			$userid,
-			$ext03,
+			$hash, // パスワードハッシュをpwdに保存
 			$no,
 			$time
 		]);
