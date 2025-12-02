@@ -4,7 +4,7 @@
 //  by sakots & OekakiBBS reDev.Team  https://oekakibbs.moe/
 //--------------------------------------------------
 
-$functions_ver=20251127;
+$functions_ver = 20251202;
 
 //編集モードログアウト
 function logout(): void {
@@ -80,7 +80,7 @@ function aikotoba_required_to_view($required_flag=false): void {
 		set_form_display_time();
 		$templete='aikotoba.html';
 		include __DIR__.'/'.$skindir.$templete;
-		exit();//return include では処理が止まらない。 
+		exit();//return include では処理が止まらない。
 	}
 }
 //ページのコンテキストをセッションに保存
@@ -1246,6 +1246,7 @@ function is_badhost(): bool {
 
 //初期化
 function init(): void {
+	global $db_name, $db_pdo;
 	
 	check_dir(__DIR__."/img");
 	check_dir(__DIR__."/temp");
@@ -1257,22 +1258,24 @@ function init(): void {
 	file_put_contents(LOG_DIR.'alllog.log','',FILE_APPEND|LOCK_EX);
 	chmod(LOG_DIR.'alllog.log',0600);
 	}
-}
-try {
-	if (!is_file($db_name . '.db')) {
-		// はじめての実行なら、テーブルを作成
-		// id, 書いた日時, 修正日時, スレ親orレス, 親スレ, コメントid, スレ構造ID,
-		// 名前, メール, タイトル, 本文, url, ホスト,
-		// そうだね, 投稿者ID, パスワード, 絵の時間(内部), 絵の時間, 絵のurl, pchのurl, 絵の幅, 絵の高さ,
-		// age/sage記憶, 表示/非表示, 絵のツール, 認証マーク, そろそろ消える, nsfw, 予備2, 予備3, 予備4
-		$db = new PDO($db_pdo);
-		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$sql = "CREATE TABLE tlog (tid integer primary key autoincrement, created TIMESTAMP, modified TIMESTAMP, thread VARCHAR(1), parent INT, comid BIGINT, tree BIGINT, a_name TEXT, mail TEXT, sub TEXT, com TEXT, a_url TEXT, host TEXT, exid TEXT, id TEXT, pwd TEXT, psec INT, utime TEXT, picfile TEXT, pchfile TEXT, img_w INT, img_h INT, age INT, invz VARCHAR(1), tool TEXT, admins VARCHAR(1), shd VARCHAR(1), ext01 TEXT, ext02 TEXT, ext03 TEXT, ext04 TEXT)";
-		$db = $db->query($sql);
-		$db = null; //db切断
+	
+	// SQLiteデータベースの初期化
+	try {
+		if (!is_file($db_name . '.db')) {
+			// はじめての実行なら、テーブルを作成
+			// id, 書いた日時, 修正日時, スレ親orレス, 親スレ, コメントid, スレ構造ID,
+			// 名前, メール, タイトル, 本文, url, ホスト,
+			// そうだね, 投稿者ID, パスワード, 絵の時間(内部), 絵の時間, 絵のurl, pchのurl, 絵の幅, 絵の高さ,
+			// age/sage記憶, 表示/非表示, 絵のツール, 認証マーク, そろそろ消える, nsfw, 予備2, 予備3, 予備4
+			$db = new PDO($db_pdo);
+			$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$sql = "CREATE TABLE tlog (tid integer primary key autoincrement, created TIMESTAMP, modified TIMESTAMP, thread VARCHAR(1), parent INT, comid BIGINT, tree BIGINT, a_name TEXT, mail TEXT, sub TEXT, com TEXT, a_url TEXT, host TEXT, exid TEXT, id TEXT, pwd TEXT, psec INT, utime TEXT, picfile TEXT, pchfile TEXT, img_w INT, img_h INT, age INT, invz VARCHAR(1), tool TEXT, admins VARCHAR(1), shd VARCHAR(1), ext01 TEXT, ext02 TEXT, ext03 TEXT, ext04 TEXT)";
+			$db->query($sql);
+			$db = null; //db切断
+		}
+	} catch (PDOException $e) {
+		error("DB接続エラー:" . $e->getMessage());
 	}
-} catch (PDOException $e) {
-	echo "DB接続エラー:" . $e->getMessage();
 }
 $err = '';
 if (!is_writable(realpath("./"))) error("カレントディレクトリに書けません<br>");
@@ -1695,5 +1698,269 @@ function filter_input_data(string $input, string $key, int $filter=0) {
 			return filter_var($value, FILTER_VALIDATE_URL);
 		default:
 			return $value;  // 他のフィルタはそのまま返す
+	}
+}
+
+// SQLiteにログを書き込む関数
+function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $log_hash, $tool, $pchext, $time, $first_posted_time, $host, $userid, $hash, $oya, $parent_no = null): void {
+	global $db_pdo, $en;
+	
+	try {
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		$parent_tid = null;
+		
+		// レス投稿の場合は親スレッドのtidを取得
+		if ($oya === 'res' && $parent_no !== null) {
+			$stmt = $db->prepare("SELECT tid FROM tlog WHERE comid = ? AND thread = 'o' ORDER BY tid DESC LIMIT 1");
+			$stmt->execute([$parent_no]);
+			$parent_row = $stmt->fetch(PDO::FETCH_ASSOC);
+			$parent_tid = $parent_row ? (int)$parent_row['tid'] : null;
+		}
+		
+		// 新規投稿の場合は親スレッドIDはnull
+		if ($oya === 'oya') {
+			$parent_tid = null;
+		}
+		
+		// 認証マーク
+		$admins = ($verified === 'adminpost') ? '1' : '0';
+		
+		// サムネイル情報をext01に保存
+		$ext01 = $thumbnail;
+		
+		// ログハッシュをext02に保存
+		$ext02 = $log_hash;
+		
+		// パスワードハッシュをext03に保存
+		$ext03 = $hash;
+		
+		// 投稿時刻をマイクロ秒から秒に変換
+		$created_time = microtime2time($time);
+		$modified_time = microtime2time($first_posted_time);
+		
+		$stmt = $db->prepare("INSERT INTO tlog (created, modified, thread, parent, comid, tree, a_name, mail, sub, com, a_url, host, exid, id, pwd, psec, utime, picfile, pchfile, img_w, img_h, age, invz, tool, admins, shd, ext01, ext02, ext03, ext04) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		
+		$stmt->execute([
+			date('Y-m-d H:i:s', $created_time),
+			date('Y-m-d H:i:s', $modified_time),
+			$oya === 'oya' ? 'o' : 'r',
+			$parent_tid,
+			$no,
+			$no, // treeはスレッド番号と同じ
+			$name,
+			'',
+			$sub,
+			$com,
+			$url,
+			$host,
+			'',
+			$userid,
+			'',
+			$painttime ? (int)$painttime : null,
+			$time,
+			$imgfile,
+			$pchext && in_array($pchext, ['.pch', '.spch', '.chi', '.psd', '.tgkr']) ? $time . $pchext : '',
+			$w ? (int)$w : null,
+			$h ? (int)$h : null,
+			null,
+			'',
+			$tool,
+			$admins,
+			'',
+			$ext01,
+			$ext02,
+			$ext03,
+			''
+		]);
+		
+		$db = null;
+	} catch (PDOException $e) {
+		error($en ? 'Failed to write log to database.' : 'ログの書き込みに失敗しました。');
+	}
+}
+
+// SQLiteからログを読み込む関数（スレッド単位）
+function read_log_from_sqlite($no): array {
+	global $db_pdo, $en;
+	
+	try {
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		// まず親スレッドのtidを取得
+		$stmt = $db->prepare("SELECT tid FROM tlog WHERE thread = 'o' AND comid = ? ORDER BY tid DESC LIMIT 1");
+		$stmt->execute([$no]);
+		$parent_row = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if (!$parent_row) {
+			return [];
+		}
+		
+		$parent_tid = (int)$parent_row['tid'];
+		
+		// スレッド番号で検索（oyaとそのレスを取得）
+		$stmt = $db->prepare("SELECT * FROM tlog WHERE (thread = 'o' AND comid = ?) OR (thread = 'r' AND parent = ?) ORDER BY created ASC");
+		$stmt->execute([$no, $parent_tid]);
+		$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
+		$log_lines = [];
+		foreach ($rows as $row) {
+			// タブ区切り形式に変換
+			$verified = ($row['admins'] === '1') ? 'adminpost' : '';
+			$oya = ($row['thread'] === 'o') ? 'oya' : 'res';
+			$thumbnail = $row['ext01'] ?? '';
+			$log_hash = $row['ext02'] ?? '';
+			$hash = $row['ext03'] ?? '';
+			
+			$line = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+				$row['comid'],
+				$row['sub'],
+				$row['a_name'],
+				$verified,
+				$row['com'],
+				$row['a_url'],
+				$row['picfile'],
+				$row['img_w'] ?? '',
+				$row['img_h'] ?? '',
+				$thumbnail,
+				$row['psec'] ?? '',
+				$log_hash,
+				$row['tool'],
+				$row['pchfile'] ? basename($row['pchfile']) : '',
+				$row['utime'],
+				$row['utime'],
+				$row['host'],
+				$row['id'],
+				$hash,
+				$oya
+			);
+			$log_lines[] = $line;
+		}
+		
+		$db = null;
+		return $log_lines;
+	} catch (PDOException $e) {
+		error($en ? 'Failed to read log from database.' : 'ログの読み込みに失敗しました。');
+		return [];
+	}
+}
+
+// SQLiteから全体ログを読み込む関数
+function read_alllog_from_sqlite(): array {
+	global $db_pdo, $en;
+	
+	try {
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		// oyaのみを取得（スレッドの親のみ）
+		$stmt = $db->prepare("SELECT * FROM tlog WHERE thread = 'o' ORDER BY created DESC");
+		$stmt->execute();
+		$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		
+		$log_lines = [];
+		foreach ($rows as $row) {
+			// コメントを120バイトに短縮
+			$com = mb_strcut($row['com'], 0, 120);
+			$verified = ($row['admins'] === '1') ? 'adminpost' : '';
+			$thumbnail = $row['ext01'] ?? '';
+			$log_hash = $row['ext02'] ?? '';
+			$hash = $row['ext03'] ?? '';
+			
+			$line = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\toya\n",
+				$row['comid'],
+				$row['sub'],
+				$row['a_name'],
+				$verified,
+				$com,
+				$row['a_url'],
+				$row['picfile'],
+				$row['img_w'] ?? '',
+				$row['img_h'] ?? '',
+				$thumbnail,
+				$row['psec'] ?? '',
+				$log_hash,
+				$row['tool'],
+				$row['pchfile'] ? basename($row['pchfile']) : '',
+				$row['utime'],
+				$row['utime'],
+				$row['host'],
+				$row['id'],
+				$hash
+			);
+			$log_lines[] = $line;
+		}
+		
+		$db = null;
+		return $log_lines;
+	} catch (PDOException $e) {
+		error($en ? 'Failed to read all log from database.' : '全体ログの読み込みに失敗しました。');
+		return [];
+	}
+}
+
+// SQLiteからログを更新する関数
+function update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $log_hash, $tool, $pchext, $host, $userid, $hash, $oya): void {
+	global $db_pdo, $en;
+	
+	try {
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		$admins = ($verified === 'adminpost') ? '1' : '0';
+		$ext01 = $thumbnail;
+		$ext02 = $log_hash;
+		$ext03 = $hash;
+		
+		$stmt = $db->prepare("UPDATE tlog SET modified = ?, sub = ?, a_name = ?, admins = ?, com = ?, a_url = ?, picfile = ?, img_w = ?, img_h = ?, ext01 = ?, psec = ?, ext02 = ?, tool = ?, pchfile = ?, host = ?, id = ?, ext03 = ? WHERE comid = ? AND utime = ?");
+		
+		$updated_time = microtime2time($time);
+		$pchfile = $pchext && in_array($pchext, ['.pch', '.spch', '.chi', '.psd', '.tgkr']) ? $time . $pchext : '';
+		
+		$stmt->execute([
+			date('Y-m-d H:i:s', $updated_time),
+			$sub,
+			$name,
+			$admins,
+			$com,
+			$url,
+			$imgfile,
+			$w ? (int)$w : null,
+			$h ? (int)$h : null,
+			$ext01,
+			$painttime ? (int)$painttime : null,
+			$ext02,
+			$tool,
+			$pchfile,
+			$host,
+			$userid,
+			$ext03,
+			$no,
+			$time
+		]);
+		
+		$db = null;
+	} catch (PDOException $e) {
+		error($en ? 'Failed to update log in database.' : 'ログの更新に失敗しました。');
+	}
+}
+
+// SQLiteからログを削除する関数
+function delete_log_from_sqlite($no): void {
+	global $db_pdo, $en;
+	
+	try {
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		
+		// スレッドとそのレスを削除
+		$stmt = $db->prepare("DELETE FROM tlog WHERE comid = ? OR parent IN (SELECT tid FROM tlog WHERE thread = 'o' AND comid = ?)");
+		$stmt->execute([$no, $no]);
+		
+		$db = null;
+	} catch (PDOException $e) {
+		error($en ? 'Failed to delete log from database.' : 'ログの削除に失敗しました。');
 	}
 }

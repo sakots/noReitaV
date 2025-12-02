@@ -1,9 +1,11 @@
 <?php
-//Petit Note (c)さとぴあ @satopian 2021-2025 MIT License
-//https://paintbbs.sakura.ne.jp/
+//--------------------------------------------------
+//  おえかきけいじばん「noReitaV」
+//  by sakots & OekakiBBS reDev.Team  https://oekakibbs.moe/
+//--------------------------------------------------
 //APIを使ってお絵かき掲示板からMisskeyにノート
 
-$misskey_note_ver=20250718;
+$misskey_note_ver = 20251202;
 class misskey_note{
 
 	//投稿済みの記事をMisskeyにノートするための前処理
@@ -31,16 +33,22 @@ class misskey_note{
 		$postresno = $resno;//古いテンプレート互換
 
 		check_open_no($no);
-		if(!is_file(LOG_DIR."{$no}.log")){
-			error($en? 'The article does not exist.':'記事がありません。');
+		
+		// SQLiteからログを読み込む
+		$r_arr = read_log_from_sqlite($no);
+		
+		if(empty($r_arr)){
+			// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+			if(!is_file(LOG_DIR."{$no}.log")){
+				error($en? 'The article does not exist.':'記事がありません。');
+			}
+			$rp=fopen(LOG_DIR."{$no}.log","r");
+			file_lock($rp, LOCK_EX);
+			$r_arr = create_array_from_fp($rp);
+			closeFile($rp);
 		}
-		$rp=fopen(LOG_DIR."{$no}.log","r");
-		file_lock($rp, LOCK_EX);
-
-		$r_arr = create_array_from_fp($rp);
 
 		if(empty($r_arr)){
-			closeFile($rp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 		$find=false;
@@ -58,11 +66,8 @@ class misskey_note{
 
 		}
 		if(!$find){
-			closeFile ($rp);
 			error($en?'The article was not found.':'記事が見つかりません。');
 		}
-
-		closeFile ($rp);
 
 		$token=get_csrf_token();
 
@@ -105,16 +110,22 @@ class misskey_note{
 		list($id,$no)=explode(",",trim($id_and_no));
 
 		check_open_no($no);
-		if(!is_file(LOG_DIR."{$no}.log")){
-			error($en? 'The article does not exist.':'記事がありません。');
+		
+		// SQLiteからログを読み込む
+		$r_arr = read_log_from_sqlite($no);
+		
+		if(empty($r_arr)){
+			// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+			if(!is_file(LOG_DIR."{$no}.log")){
+				error($en? 'The article does not exist.':'記事がありません。');
+			}
+			$rp=fopen(LOG_DIR."{$no}.log","r");
+			file_lock($rp, LOCK_EX);
+			$r_arr = create_array_from_fp($rp);
+			closeFile($rp);
 		}
-		$rp=fopen(LOG_DIR."{$no}.log","r");
-		file_lock($rp, LOCK_EX);
-
-		$r_arr = create_array_from_fp($rp);
 
 		if(empty($r_arr)){
-			closeFile($rp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 
@@ -139,10 +150,8 @@ class misskey_note{
 		}
 
 		if(!$flag){
-			closeFile($rp);
 			error($en?'This operation has failed.':'失敗しました。');
 		}
-		closeFile($rp);
 
 		check_AsyncRequest();//Asyncリクエストの時は処理を中断
 

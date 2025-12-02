@@ -24,14 +24,14 @@ if(!is_file(__DIR__.'/functions.php')) {
 	die(__DIR__.'/functions.php'.($en ? ' does not exist.':'がありません。'));
 }
 require_once(__DIR__.'/functions.php');
-if(!isset($functions_ver) || $functions_ver < 20251127) {
+if(!isset($functions_ver) || $functions_ver < 20251202) {
 	die($en ? 'Please update functions.php to the latest version.' : 'functions.phpを最新版に更新してください。');
 }
 
 //misskey_note.inc.phpの存在チェック
 check_file(__DIR__.'/misskey_note.inc.php');
 require_once(__DIR__.'/misskey_note.inc.php');
-if(!isset($misskey_note_ver) || $misskey_note_ver < 20250718) {
+if(!isset($misskey_note_ver) || $misskey_note_ver < 20251202) {
 	die($en ? 'Please update misskey_note.inc.php to the latest version.' : 'misskey_note.inc.phpを最新版に更新してください。');
 }
 
@@ -489,16 +489,27 @@ function post(): void {
 
 	$verified = $adminpost ? 'adminpost' : '';
 
-	//全体ログを開く
-	chmod(LOG_DIR."alllog.log",0600);
-	$fp=fopen(LOG_DIR."alllog.log","r+");
-	if(!$fp) {
-		safe_unlink($upfile);
-		error($en ? 'This operation has failed.' : '失敗しました。');
+	//全体ログを開く（SQLiteから読み込む）
+	$alllog_arr = read_alllog_from_sqlite();
+	
+	if(empty($alllog_arr)){
+		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+		chmod(LOG_DIR."alllog.log",0600);
+		$fp=fopen(LOG_DIR."alllog.log","r+");
+		if(!$fp) {
+			safe_unlink($upfile);
+			error($en ? 'This operation has failed.' : '失敗しました。');
+		}
+		file_lock($fp, LOCK_EX);
+		$alllog_arr = create_array_from_fp($fp);
+	} else {
+		// ファイルログも開く（後方互換性のため）
+		chmod(LOG_DIR."alllog.log",0600);
+		$fp=fopen(LOG_DIR."alllog.log","r+");
+		if($fp) {
+			file_lock($fp, LOCK_EX);
+		}
 	}
-	file_lock($fp, LOCK_EX);
-
-	$alllog_arr = create_array_from_fp($fp);
 	if($resto){//投稿数が0の時には空になるため、レス時のみチェック
 		if(empty($alllog_arr)) {
 			closeFile($fp);
@@ -668,6 +679,10 @@ function post(): void {
 		$r_line = "$resto\t$sub\t$name\t$verified\t$com\t$url\t$imgfile\t$w\t$h\t$thumbnail\t$painttime\t$up_img_hash\t$tool\t$pchext\t$time\t$time\t$host\t$userid\t$hash\tres\n";
 		$new_rline =	implode("",$r_arr).$r_line;
 
+		// SQLiteにログを書き込む
+		write_log_to_sqlite($resto, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $up_img_hash, $tool, $pchext, $time, $time, $host, $userid, $hash, 'res', $resto);
+		
+		// ファイルログも残す（後方互換性のため）
 		writeFile($rp,$new_rline);
 		closeFile($rp);
 
@@ -692,6 +707,11 @@ function post(): void {
 		$newline = "$no\t$sub\t$name\t$verified\t$strcut_com\t$url\t$imgfile\t$w\t$h\t$thumbnail\t$painttime\t$up_img_hash\t$tool\t$pchext\t$time\t$time\t$host\t$userid\t$hash\toya\n";
 		$new_r_line = "$no\t$sub\t$name\t$verified\t$com\t$url\t$imgfile\t$w\t$h\t$thumbnail\t$painttime\t$up_img_hash\t$tool\t$pchext\t$time\t$time\t$host\t$userid\t$hash\toya\n";
 		check_open_no($no);
+		
+		// SQLiteにログを書き込む
+		write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, $w, $h, $thumbnail, $painttime, $up_img_hash, $tool, $pchext, $time, $time, $host, $userid, $hash, 'oya');
+		
+		// ファイルログも残す（後方互換性のため）
 		file_put_contents(LOG_DIR.$no.'.log',$new_r_line,LOCK_EX); //新規投稿の時は、記事ナンバーのファイルを作成して書き込む
 		chmod(LOG_DIR."{$no}.log",0600);
 	}
@@ -727,6 +747,8 @@ function post(): void {
 	}
 	$newline.=implode("",$alllog_arr);
 
+	// 全体ログはSQLiteから読み込むため、ファイルへの書き込みは不要
+	// ただし後方互換性のため残す
 	writeFile($fp, $newline);
 	closeFile($fp);
 
@@ -2056,8 +2078,19 @@ function edit(): void {
 			error($en?'This operation has failed.':'失敗しました。');
 		}
 
+		// 全体ログの更新はSQLiteで行うため、ファイルへの書き込みは不要
+		// ただし後方互換性のため残す
 		writeFile($fp,implode("",$alllog_arr));
+		
+		// SQLiteの全体ログも更新
+		$strcut_com = mb_strcut($com, 0, 120);
+		update_log_in_sqlite($no, $_time, $sub, $name, $verified, $strcut_com, $url, $_imgfile, $_w, $_h, $thumbnail, $_painttime, $_log_img_hash, $_tool, $pchext, $host, $userid, $hash, 'oya');
 	}
+	
+	// SQLiteのレスログも更新
+	update_log_in_sqlite($_no, $_time, $sub, $name, $verified, $com, $url, $_imgfile, $_w, $_h, $thumbnail, $_painttime, $_log_img_hash, $_tool, $pchext, $host, $userid, $hash, $_oya);
+	
+	// ファイルログも残す（後方互換性のため）
 	writeFile($rp, implode("", $r_arr));
 
 	closeFile($rp);
@@ -2336,10 +2369,25 @@ function view(): void {
 	session_sta();
 	unset ($_SESSION['enableappselect']);
 
-	$fp=fopen(LOG_DIR."alllog.log","r");
+	// SQLiteから全体ログを読み込む
+	$alllog_lines = read_alllog_from_sqlite();
+	
+	if(empty($alllog_lines)){
+		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+		$fp=fopen(LOG_DIR."alllog.log","r");
+		$alllog_lines = [];
+		while ($_line = fgets($fp)) {
+			if(!trim($_line)){
+				continue;
+			}
+			$alllog_lines[] = $_line;
+		}
+		fclose($fp);
+	}
+	
 	$article_nos=[];
 	$count_alllog=0;
-	while ($_line = fgets($fp)) {
+	foreach ($alllog_lines as $_line) {
 		if(!trim($_line)){
 			continue;
 		}
@@ -2349,7 +2397,6 @@ function view(): void {
 		}
 		++$count_alllog;//処理の後半で記事数のカウントとして使用
 	}
-	fclose($fp);
 
 	$index_cache_json = __DIR__.'/theme/cache/index_cache.json';
 
@@ -2362,16 +2409,23 @@ function view(): void {
 		foreach($article_nos as $oya => $no){
 
 			//個別スレッドのループ
-			if(!is_file(LOG_DIR."{$no}.log")){
-				continue;	
+			// SQLiteからログを読み込む
+			$lines = read_log_from_sqlite($no);
+			
+			if(empty($lines)){
+				// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+				if(!is_file(LOG_DIR."{$no}.log")){
+					continue;	
+				}
+				check_open_no($no);
+				$rp = fopen(LOG_DIR."{$no}.log", "r");
+				$lines=create_array_from_fp($rp);
+				fclose($rp);
 			}
+			
 			$_res=[];
 			$out[$oya]=[];
 			$find_hide_thumbnail=false;
-			check_open_no($no);
-			$rp = fopen(LOG_DIR."{$no}.log", "r");//個別スレッドのログを開く
-			$lines=create_array_from_fp($rp);
-			fclose($rp);
 			$countres=count($lines);
 			$com_skipres= $dispres ? ($countres-($dispres+1)) : 0;
 
@@ -2570,9 +2624,20 @@ function res (): void {
 
 	unset ($_SESSION['enableappselect']);
 
-	if(!is_file(LOG_DIR."{$resno}.log")){
-		error($en?'Thread does not exist.':'スレッドがありません');	
+	// SQLiteからログを読み込む
+	$lines = read_log_from_sqlite($resno);
+	
+	if(empty($lines)){
+		// SQLiteにデータがない場合はファイルから読み込む（後方互換性）
+		if(!is_file(LOG_DIR."{$resno}.log")){
+			error($en?'Thread does not exist.':'スレッドがありません');	
+		}
+		check_open_no($resno);
+		$rp = fopen(LOG_DIR."{$resno}.log", "r");
+		$lines = create_array_from_fp($rp);
+		fclose($rp);
 	}
+	
 	$rresname = [];
 	$resname = '';
 	$oyaname='';
@@ -2581,15 +2646,12 @@ function res (): void {
 	$og_name = '';
 	$og_resid = '';
 
-	check_open_no($resno);
-	$rp = fopen(LOG_DIR."{$resno}.log", "r");//個別スレッドのログを開く
-
 	$out[0]=[];
 
 	$og_img="";
 	$og_descriptioncom = ""; 
 	$og_hide_thumbnail = "";
-	while ($line = fgets($rp)) {
+	foreach ($lines as $line) {
 		if(!trim($line)){
 			continue;
 		}
