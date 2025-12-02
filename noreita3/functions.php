@@ -1255,7 +1255,7 @@ function init(): void {
 	check_dir(__DIR__."/log");
 	check_dir(__DIR__."/webp");
 	check_dir(__DIR__."/theme/cache");
-	
+
 	// SQLiteデータベースの初期化
 	try {
 		if (!is_file($db_name . '.db')) {
@@ -1266,10 +1266,24 @@ function init(): void {
 			// age/sage記憶, 表示/非表示, 絵のツール, 認証マーク, そろそろ消える, nsfw, 予備2, 予備3, 予備4
 			$db = new PDO($db_pdo);
 			$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			$sql = "CREATE TABLE tlog (tid integer primary key autoincrement, created TIMESTAMP, modified TIMESTAMP, thread VARCHAR(1), parent INT, comid BIGINT, tree BIGINT, a_name TEXT, mail TEXT, sub TEXT, com TEXT, a_url TEXT, host TEXT, exid TEXT, id TEXT, pwd TEXT, psec INT, utime TEXT, picfile TEXT, pchfile TEXT, img_w INT, img_h INT, age INT, invz VARCHAR(1), tool TEXT, admins VARCHAR(1), shd VARCHAR(1), ext01 TEXT, ext02 TEXT, ext03 TEXT, ext04 TEXT)";
+			$sql = "CREATE TABLE tlog (tid integer primary key autoincrement, created TIMESTAMP, modified TIMESTAMP, thread VARCHAR(1), parent INT, comid BIGINT, tree BIGINT, a_name TEXT, mail TEXT, sub TEXT, com TEXT, a_url TEXT, host TEXT, exid TEXT, id TEXT, pwd TEXT, psec INT, utime TEXT, picfile TEXT, thumbnail TEXT, pchfile TEXT, img_w INT, img_h INT, age INT, sodane INT, invz VARCHAR(1), tool TEXT, admins VARCHAR(1), shd VARCHAR(1), ext01 TEXT, ext02 TEXT, ext03 TEXT, ext04 TEXT)";
 			$db->query($sql);
 			$db = null; //db切断
 		}
+
+		// 既存DBにカラムを追加（サムネイルと「そうだね」用）
+		$db = new PDO($db_pdo);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$columns_stmt = $db->query("PRAGMA table_info(tlog)");
+		$columns = $columns_stmt->fetchAll(PDO::FETCH_COLUMN, 1);
+
+		if (!in_array('thumbnail', $columns, true)) {
+			$db->exec("ALTER TABLE tlog ADD COLUMN thumbnail TEXT");
+		}
+		if (!in_array('sodane', $columns, true)) {
+			$db->exec("ALTER TABLE tlog ADD COLUMN sodane INT DEFAULT 0");
+		}
+		$db = null;
 	} catch (PDOException $e) {
 		error("DB接続エラー:" . $e->getMessage());
 	}
@@ -1724,17 +1738,21 @@ function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, 
 		// 認証マーク
 		$admins = ($verified === 'adminpost') ? '1' : '0';
 		
-		// サムネイル情報をext01に保存
-		$ext01 = $thumbnail;
+		// サムネイル情報
+		$ext01 = $thumbnail; // 旧カラム（後方互換用）
+		$thumbnail_col = $thumbnail; // 新カラム
 		
-		// ログハッシュをext02に保存
+		// ログハッシュをext02に保存（そのまま利用）
 		$ext02 = $log_hash;
+
+		// 「そうだね」カウント（初期値0）
+		$sodane = 0;
 		
 		// 投稿時刻をマイクロ秒から秒に変換
 		$created_time = microtime2time($time);
 		$modified_time = microtime2time($first_posted_time);
 		
-		$stmt = $db->prepare("INSERT INTO tlog (created, modified, thread, parent, comid, tree, a_name, mail, sub, com, a_url, host, exid, id, pwd, psec, utime, picfile, pchfile, img_w, img_h, age, invz, tool, admins, shd, ext01, ext02, ext03, ext04) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt = $db->prepare("INSERT INTO tlog (created, modified, thread, parent, comid, tree, a_name, mail, sub, com, a_url, host, exid, id, pwd, psec, utime, picfile, thumbnail, pchfile, img_w, img_h, age, sodane, invz, tool, admins, shd, ext01, ext02, ext03, ext04) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		
 		$stmt->execute([
 			date('Y-m-d H:i:s', $created_time),
@@ -1755,10 +1773,12 @@ function write_log_to_sqlite($no, $sub, $name, $verified, $com, $url, $imgfile, 
 			$painttime ? (int)$painttime : null,
 			$time,
 			$imgfile,
+			$thumbnail_col,
 			$pchext && in_array($pchext, ['.pch', '.spch', '.chi', '.psd', '.tgkr']) ? $time . $pchext : '',
 			$w ? (int)$w : null,
 			$h ? (int)$h : null,
 			null,
+			$sodane,
 			'',
 			$tool,
 			$admins,
@@ -1804,7 +1824,8 @@ function read_log_from_sqlite($no): array {
 			// タブ区切り形式に変換
 			$verified = ($row['admins'] === '1') ? 'adminpost' : '';
 			$oya = ($row['thread'] === 'o') ? 'oya' : 'res';
-			$thumbnail = $row['ext01'] ?? '';
+			// サムネイルは新カラムを優先（なければ旧ext01）
+			$thumbnail = $row['thumbnail'] ?? ($row['ext01'] ?? '');
 			$log_hash = $row['ext02'] ?? '';
 			// パスワードハッシュはpwdから取得
 			$hash = $row['pwd'];
@@ -1860,7 +1881,8 @@ function read_alllog_from_sqlite(): array {
 			// コメントを120バイトに短縮
 			$com = mb_strcut($row['com'], 0, 120);
 			$verified = ($row['admins'] === '1') ? 'adminpost' : '';
-			$thumbnail = $row['ext01'] ?? '';
+			// サムネイルは新カラムを優先（なければ旧ext01）
+			$thumbnail = $row['thumbnail'] ?? ($row['ext01'] ?? '');
 			$log_hash = $row['ext02'] ?? '';
 			// パスワードハッシュはpwdから取得（後方互換性のためext03もチェック）
 			$hash = $row['pwd'];
@@ -1906,10 +1928,10 @@ function update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $i
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
 		$admins = ($verified === 'adminpost') ? '1' : '0';
-		$ext01 = $thumbnail;
+		$ext01 = $thumbnail; // 旧サムネイルカラムも更新しておく
 		$ext02 = $log_hash;
 		
-		$stmt = $db->prepare("UPDATE tlog SET modified = ?, sub = ?, a_name = ?, admins = ?, com = ?, a_url = ?, picfile = ?, img_w = ?, img_h = ?, ext01 = ?, psec = ?, ext02 = ?, tool = ?, pchfile = ?, host = ?, id = ?, pwd = ? WHERE comid = ? AND utime = ?");
+		$stmt = $db->prepare("UPDATE tlog SET modified = ?, sub = ?, a_name = ?, admins = ?, com = ?, a_url = ?, picfile = ?, img_w = ?, img_h = ?, thumbnail = ?, ext01 = ?, psec = ?, ext02 = ?, tool = ?, pchfile = ?, host = ?, id = ?, pwd = ? WHERE comid = ? AND utime = ?");
 		
 		$updated_time = microtime2time($time);
 		$pchfile = $pchext && in_array($pchext, ['.pch', '.spch', '.chi', '.psd', '.tgkr']) ? $time . $pchext : '';
@@ -1924,6 +1946,7 @@ function update_log_in_sqlite($no, $time, $sub, $name, $verified, $com, $url, $i
 			$imgfile,
 			$w ? (int)$w : null,
 			$h ? (int)$h : null,
+			$thumbnail,
 			$ext01,
 			$painttime ? (int)$painttime : null,
 			$ext02,

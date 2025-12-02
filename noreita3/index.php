@@ -370,12 +370,11 @@ function post(): void {
 	$r_no = '';
 	$chk_resto = '';
 	if($resto && empty($r_arr)) {
-		if(!$is_painted_img){
+		if(!$is_painted_img) {
 			error($en ? 'This operation has failed.' : '失敗しました。');
 		}
-			$chk_resto = $resto;
-			$resto = '';
-		}
+		$chk_resto = $resto;
+		$resto = '';
 
 		list($r_no,$oyasub,$n_,$v_,$c_,$u_,$img_,$_,$_,$thumb_,$pt_,$hash_,$to_,$pch_,$postedtime,$fp_time_,$h_,$uid_,$h_,$r_oya)=explode("\t",trim($r_arr[0]));
 		//レスファイルの1行目のチェック。経過日数、ログの1行目が'oya'かどうか確認。
@@ -405,9 +404,7 @@ function post(): void {
 		if($resto && !$adminpost &&  $count_r_arr>$max_res){//最大レス数超過。
 			error($en ? 'The maximum number of replies has been exceeded.' : '最大レス数を超過しています。');
 		}
-
 		$sub = 'Re: '.$oyasub;
-
 	}
 
 	//POSTされた値をログファイルに格納する書式にフォーマット
@@ -419,11 +416,11 @@ function post(): void {
 
 	//ファイルアップロード
 	$up_tempfile = $_FILES['imgfile']['tmp_name'] ?? ''; // 一時ファイル名
-	if(isset($_FILES['imgfile']['error']) && in_array($_FILES['imgfile']['error'],[1,2])){//容量オーバー
+	if(isset($_FILES['imgfile']['error']) && in_array($_FILES['imgfile']['error'],[1,2])) { //容量オーバー
 		error($en ? "The file is too large." : "ファイルサイズが大きすぎます。");
 	}
 	$is_upload_img = false;
-	if ($up_tempfile && $_FILES['imgfile']['error'] === UPLOAD_ERR_OK && ($use_upload || $adminpost)){
+	if ($up_tempfile && $_FILES['imgfile']['error'] === UPLOAD_ERR_OK && ($use_upload || $adminpost)) {
 
 		if($resto && !$use_res_upload && !$adminpost) {
 			safe_unlink($up_tempfile);
@@ -488,7 +485,7 @@ function post(): void {
 	//全体ログを開く（SQLiteから読み込む）
 	$alllog_arr = read_alllog_from_sqlite();
 	
-	if($resto){//投稿数が0の時には空になるため、レス時のみチェック
+	if($resto) { //投稿数が0の時には空になるため、レス時のみチェック
 		if(empty($alllog_arr)) {
 			safe_unlink($upfile);
 			error($en ? 'This operation has failed.' : '失敗しました。');
@@ -657,7 +654,6 @@ function post(): void {
 				}
 			}
 		}
-
 	} else {
 		//最後の記事ナンバーに+1
 		$no = $max_no+1;
@@ -743,11 +739,10 @@ function post(): void {
 
 		noticemail::send($data);
 	}
-
 	//多重送信防止
 	redirect("./?resno={$resno}&resid={$time}");
-
 }
+
 //お絵かき画面
 function paint(): void {
 

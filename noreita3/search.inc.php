@@ -266,7 +266,7 @@ class processsearch
 					}
 				}
 			}
-			fclose($rp);
+			//fclose($rp);
 			if ($j >= 10000) {
 				break;
 			} //1掲示板あたりの最大行数
