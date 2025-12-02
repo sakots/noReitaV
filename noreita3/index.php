@@ -2686,7 +2686,6 @@ function res (): void {
 		$out[0][]=$_res;
 		$out[0][0]['find_hide_thumbnail']=$find_hide_thumbnail;
 	}	
-	fclose($rp);
 	if(empty($out[0])||$out[0][0]['oya']!=='oya'){
 		error($en? 'The article does not exist.':'記事がありません。');
 	}
