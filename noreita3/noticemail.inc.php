@@ -4,7 +4,7 @@ $noticemail_inc_ver = 20250315;
 ** メール通知クラス(UTF-8) lot.20250314 for PetitNote
 ** https://paintbbs.sakura.ne.jp/
 ** 
-** originalscript (C)SakaQ 2004-2007
+** original script (C)SakaQ 2004-2007
 ** http://www.punyu.net/php/
 ** 
 **
