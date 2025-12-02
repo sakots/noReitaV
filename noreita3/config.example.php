@@ -77,7 +77,7 @@ $use_sns_button = true;
 
 /*テンプレート切り替え*/
 // テンプレートのディレクトリ`/`まで 初期値 "basic/"
-$skindir = "basic/";
+$theme_dir = "basic/";
 
 /*掲示板の説明文*/
 
