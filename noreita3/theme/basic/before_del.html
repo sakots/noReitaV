@@ -30,7 +30,7 @@
 	<?php if($en):?>Check the article you want to delete and enter the password.<?php else:?>削除したい記事をチェックしてパスワードを入力してください。<?php endif;?>: 
 
 <?php endif;?>
-<form action="./" method="POST" id="before_delete" class="aikotoba" onsubmit="return res_form_submit(event,'before_delete')">
+<form action="./" method="POST" id="before_delete" class="catchword" onsubmit="return res_form_submit(event,'before_delete')">
 <?php if(!$admindel):?>
 	<span class="non"><input type="text" value="" autocomplete="username"></span>
 	<input type="password" name="pwd" value="<?=h($pwdc)?>" autocomplete="current-password">

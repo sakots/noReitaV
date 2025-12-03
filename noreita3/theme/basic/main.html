@@ -30,7 +30,7 @@
 	<?php if($display_search_nav):?>
 		<span> [<a href="./?mode=search&radio=3"><?php if($en):?>Search<?php else:?>検索<?php endif;?></a>]</span>
 	<?php endif;?>
-<?php if($aikotoba):?>
+<?php if($catchword):?>
 	<?php if($use_paint):?>
 		<span> [<a href="./?mode=paintcom" rel="nofollow"><?php if($en):?>Recover Images<?php else:?>未投稿画像<?php endif;?></a>]</span>
 	<?php endif;?>
@@ -42,7 +42,7 @@
 	<?php endif;?>
 <?php endif;?>
 	<a href="#bottom">▽</a>
-<?php if($aikotoba):?>
+<?php if($catchword):?>
 	</span>
 <?php endif;?>
 </nav>
@@ -50,7 +50,7 @@
 	<!-- 閲覧注意画像を隠す/隠さない -->
 	<?php include __DIR__.'/parts/form_set_nsfw_show_hide.html';?>
 <?php endif;?>
-<?php if($aikotoba && !$userdel && !$admindel && !$is_badhost):?>
+<?php if($catchword && !$userdel && !$admindel && !$is_badhost):?>
 <!-- 掲示板の説明文 -->
 <?php if(!empty($descriptions)):?>
 <div class="description">
@@ -145,7 +145,7 @@ Size:
 <?php endif;?>
 <?php endif;?>
 <!-- 合言葉認証 -->
-<?php include __DIR__.'/parts/form_aikotoba.html'?>
+<?php include __DIR__.'/parts/form_catchword.html'?>
 
 <hr>
 <!-- スレッド -->

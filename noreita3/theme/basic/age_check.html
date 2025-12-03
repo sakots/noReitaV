@@ -15,10 +15,10 @@
 	<h2 class="article_title"><?php if($en):?>Age Verification<?php else:?>年齢確認<?php endif;?></h2>
 	<p><?php if($en):?>Are you 18 or older?<?php else:?>あなたは18才以上ですか？<?php endif;?></p>
 
-<form action="./" method="post" class="aikotoba" id="age_check" onsubmit="return age_check(event)">
+<form action="./" method="post" class="catchword" id="age_check" onsubmit="return age_check(event)">
 <input type="submit" value="<?php if($en):?>Yes, 18 or older<?php else:?>はい18才以上です。<?php endif;?>">
 </form>
-<form action="<?=h($underage_submit_url)?>" class="aikotoba">
+<form action="<?=h($underage_submit_url)?>" class="catchword">
 <input type="submit" value="<?php if($en):?>No, under 18<?php else:?>いいえ18才未満です。<?php endif;?>">
 </form>
 </div>

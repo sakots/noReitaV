@@ -27,7 +27,7 @@ class processsearch
 		global $boardname, $petit_ver, $petit_lot, $set_nsfw, $en, $mark_sensitive_image;
 		global $search_images_pagedef, $search_comments_pagedef;
 
-		aikotoba_required_to_view();
+		catchword_required_to_view();
 		set_page_context_to_session();
 
 		self::init();

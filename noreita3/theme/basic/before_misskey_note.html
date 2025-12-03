@@ -28,7 +28,7 @@
 <?php else:?>
 <?php if($en):?>Note to Misskey.<?php else:?>この画像をMisskeyにノートします。<?php endif;?>: 
 <?php endif;?>
-<form action="./" method="POST" id="before_delete" class="aikotoba" onsubmit="return res_form_submit(event,'before_delete')">
+<form action="./" method="POST" id="before_delete" class="catchword" onsubmit="return res_form_submit(event,'before_delete')">
 <?php if(!($adminpost || $admindel) || $verified!=='adminpost'):?>
 <span class="non"><input type="text" value="" autocomplete="username"></span>
 <input type="password" name="pwd" value="<?=h($pwdc)?>" autocomplete="current-password">

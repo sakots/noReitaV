@@ -579,12 +579,12 @@ form#download_forme span.pch_kb {
     display: inline-block;
     margin: 0 0 0 8px;
 }
-form.aikotoba {
+form.catchword {
     text-align: right;
     margin: 2px 0;
     display: inline-block;
 }
-form#aikotoba_form {
+form#catchword_form {
     margin: 8px 0 0 0;
 }
 form#set_nsfw_show_hide {
@@ -819,7 +819,7 @@ div#error_message_imgrep,
 div#error_message_paintform,
 div#error_message_download,
 div#error_message_beforedelete,
-div#error_message_aikotobaform {
+div#error_message_catchwordform {
     line-height: initial;
     background-color: var(--error-message-background-color);
     font-size: 20px;
@@ -831,6 +831,6 @@ div#error_message_imgrep:empty,
 div#error_message_paintform:empty,
 div#error_message_download:empty,
 div#error_message_beforedelete:empty,
-div#error_message_aikotobaform:empty {
+div#error_message_catchwordform:empty {
     display: none;
 }

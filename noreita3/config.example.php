@@ -448,28 +448,28 @@ $max_file_size_in_png_format_paint = 1024;
 // する: trueで投稿に合言葉が必要になります。
 // する: true しない: false
 
-// $use_aikotoba = true;
-$use_aikotoba = false;
+// $use_catchword = true;
+$use_catchword = false;
 
 // 掲示板の閲覧に合言葉を必須にする
 // する: true しない: false
 // する: trueで掲示板のすべてのコンテンツの閲覧に合言葉が必要になります。
 // 合言葉確認ページ以外のコンテンツは検索エンジンから認識されなくなります。
 
-// $aikotoba_required_to_view=true;
-$aikotoba_required_to_view = false;
+// $catchword_required_to_view=true;
+$catchword_required_to_view = false;
 
 // 合言葉
 // 上記の合言葉機能のどちらか、あいるは両方が true の時に入力する秘密の答え。
 // 必要に応じて変更してください。
-$aikotoba = "ひみつ";
+$catchword = "ひみつ";
 
 // 合言葉のログイン状態を維持する
 // する: true しない: false
 // する: true に設定すると合言葉のログイン状態を30日間維持します。
 
-// $keep_aikotoba_login_status=true;
-$keep_aikotoba_login_status = false;
+// $keep_catchword_login_status=true;
+$keep_catchword_login_status = false;
 
 /*検索機能*/
 

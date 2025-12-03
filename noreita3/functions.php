@@ -24,8 +24,8 @@ function logout_admin(): void {
 }
 
 //合言葉認証
-function aikotoba(): void {
-	global $aikotoba,$en,$keep_aikotoba_login_status;
+function catchword(): void {
+	global $catchword,$en,$keep_catchword_login_status;
 
 	//投稿間隔をチェック
 	check_submission_interval();
@@ -36,28 +36,28 @@ function aikotoba(): void {
 	check_same_origin();
 
 	session_sta();
-	if(!$aikotoba || !hash_equals($aikotoba,(string)filter_input_data('POST','aikotoba'))){
-		if(isset($_SESSION['aikotoba'])){
-			unset($_SESSION['aikotoba']);
+	if(!$catchword || !hash_equals($catchword,(string)filter_input_data('POST','catchword'))){
+		if(isset($_SESSION['catchword'])){
+			unset($_SESSION['catchword']);
 		}
-		if((string)filter_input_data('COOKIE','aikotoba')){
-			setcookie('aikotoba', '', time() - 3600);//クッキーを削除
+		if((string)filter_input_data('COOKIE','catchword')){
+			setcookie('catchword', '', time() - 3600);//クッキーを削除
 		} 
 		error($en?'The secret word is wrong.':'合言葉が違います。');
 	}
-	if($keep_aikotoba_login_status){
-		setcookie("aikotoba",$aikotoba, time()+(86400*30),"","",false,true);//1ヶ月
+	if($keep_catchword_login_status){
+		setcookie("catchword",$catchword, time()+(86400*30),"","",false,true);//1ヶ月
 	}
 
-	$_SESSION['aikotoba']='aikotoba';
+	$_SESSION['catchword']='catchword';
 
 	// 処理が終了したらJavaScriptでリロード
 
 }
 //記事の表示に合言葉を必須にする
-function aikotoba_required_to_view($required_flag=false): void {
+function catchword_required_to_view($required_flag=false): void {
 
-	global $use_aikotoba,$aikotoba_required_to_view,$skindir,$en,$petit_lot,$boardname;
+	global $use_catchword,$catchword_required_to_view,$skindir,$en,$petit_lot,$boardname;
 
 	//不正な値チェック
 	$page=(int)filter_input_data('GET','page',FILTER_VALIDATE_INT);
@@ -68,17 +68,17 @@ function aikotoba_required_to_view($required_flag=false): void {
 	//先に年齢確認を行う
 	age_check_required_to_view();
 
-	$required_flag=($use_aikotoba && $required_flag);
+	$required_flag=($use_catchword && $required_flag);
 
-	if(!$aikotoba_required_to_view && !$required_flag){
+	if(!$catchword_required_to_view && !$required_flag){
 	return;
 	}
 
 	$admin_pass= null;
 
-	if(!aikotoba_valid()){
+	if(!catchword_valid()){
 		set_form_display_time();
-		$templete='aikotoba.html';
+		$templete='catchword.html';
 		include __DIR__.'/'.$skindir.$templete;
 		exit();//return include では処理が止まらない。
 	}
@@ -144,7 +144,7 @@ function admin_in(): void {
 
 	//禁止ホストをチェック
 	check_badhost();
-	aikotoba_required_to_view();
+	catchword_required_to_view();
 
 	//古いテンプレート用の使用しない変数
 	$page = $resno = $catalog = $res_catalog = $search = $radio = $imgsearch = $q = $id = "";
@@ -152,7 +152,7 @@ function admin_in(): void {
 	session_sta();
 
 	$admindel=admindel_valid();
-	$aikotoba=aikotoba_valid();
+	$catchword=catchword_valid();
 	$userdel=isset($_SESSION['userdel'])&&($_SESSION['userdel']==='userdel_mode');
 	$adminpost=adminpost_valid();
 
@@ -189,7 +189,7 @@ function adminpost(): void {
 	}
 	session_regenerate_id(true);
 
-	$_SESSION['aikotoba']='aikotoba';
+	$_SESSION['catchword']='catchword';
 	$_SESSION['adminpost']=$second_pass;
 
 	branch_destination_of_location();
@@ -218,7 +218,7 @@ function admin_del(): void {
 	}
 	session_regenerate_id(true);
 
-	$_SESSION['aikotoba']='aikotoba';
+	$_SESSION['catchword']='catchword';
 	$_SESSION['admindel']=$second_pass;
 
 	branch_destination_of_location();
@@ -250,15 +250,15 @@ function userdel_valid(): bool {
 	return isset($_SESSION['userdel'])&& hash_equals($_SESSION['userdel'],'userdel_mode');
 }
 //合言葉の確認
-function aikotoba_valid(): bool {
-	global $keep_aikotoba_login_status,$aikotoba,$use_aikotoba,$aikotoba_required_to_view;
-	if(!$use_aikotoba && !$aikotoba_required_to_view){
+function catchword_valid(): bool {
+	global $keep_catchword_login_status,$catchword,$use_catchword,$catchword_required_to_view;
+	if(!$use_catchword && !$catchword_required_to_view){
 		return true;//合言葉のチェックが必要ない時
 	}
 	session_sta();
-	$keep=$keep_aikotoba_login_status ? ($aikotoba && hash_equals($aikotoba,(string)filter_input_data('COOKIE','aikotoba'))
+	$keep=$keep_catchword_login_status ? ($catchword && hash_equals($catchword,(string)filter_input_data('COOKIE','catchword'))
 	) : false;
-	return ($keep||isset($_SESSION['aikotoba'])&& hash_equals($_SESSION['aikotoba'],'aikotoba'));
+	return ($keep||isset($_SESSION['catchword'])&& hash_equals($_SESSION['catchword'],'catchword'));
 }
 
 //センシティブコンテンツ
