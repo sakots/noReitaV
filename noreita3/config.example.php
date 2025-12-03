@@ -94,9 +94,6 @@ $descriptions = ["iPadやスマートフォンでも描けるお絵かき掲示�
 //拡張子として.dbがつきます。初期設定はreita.db。
 $db_name = 'reita';
 
-//データベース接続PDO
-$db_pdo = 'sqlite:' . $db_name . '.db';
-
 /*メール通知*/
 
 // 投稿をメールで通知する
@@ -644,5 +641,8 @@ define("LOG_DIR","log/");
 define("IMG_DIR","img/");
 // 画像
 define("THUMB_DIR","thumbnail/");
+
+//データベース接続PDO
+$db_pdo = 'sqlite:' . $db_name . '.db';
 
 $config_ver = 20251202;
