@@ -57,7 +57,7 @@ function catchword(): void {
 //記事の表示に合言葉を必須にする
 function catchword_required_to_view($required_flag=false): void {
 
-	global $use_catchword,$catchword_required_to_view,$skindir,$en,$petit_lot,$boardname;
+	global $use_catchword,$catchword_required_to_view,$theme_dir,$en,$petit_lot,$boardname;
 
 	//不正な値チェック
 	$page=(int)filter_input_data('GET','page',FILTER_VALIDATE_INT);
@@ -79,7 +79,7 @@ function catchword_required_to_view($required_flag=false): void {
 	if(!catchword_valid()){
 		set_form_display_time();
 		$templete='catchword.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();//return include では処理が止まらない。
 	}
 }
@@ -114,7 +114,7 @@ function age_check(): void {
 //記事の表示に年齢確認を必須にする
 function age_check_required_to_view(): void {
 	global $underage_submit_url;
-	global $age_check_required_to_view,$skindir,$en,$petit_lot,$boardname;
+	global $age_check_required_to_view,$theme_dir,$en,$petit_lot,$boardname;
 	$age_check_required_to_view = $age_check_required_to_view ?? false;
 	$underage_submit_url = $underage_submit_url ?? 'https://www.google.com/';
 
@@ -127,7 +127,7 @@ function age_check_required_to_view(): void {
 	$agecheck_passed = (bool)filter_input_data('COOKIE','p_n_agecheck_passed');
 	if(!$agecheck_passed){
 		$templete='age_check.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();//return include では処理が止まらない。 
 	}
 }
@@ -140,7 +140,7 @@ function is_adminpass($pwd): bool {
 }
 
 function admin_in(): void {
-	global $boardname,$use_diary,$petit_lot,$petit_ver,$skindir,$en,$latest_var;
+	global $boardname,$use_diary,$petit_lot,$petit_ver,$theme_dir,$en,$latest_var;
 
 	//禁止ホストをチェック
 	check_badhost();
@@ -165,7 +165,7 @@ function admin_in(): void {
 	$admin_pass= null;
 	// HTML出力
 	$templete='admin_in.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 }
 //管理者投稿モード
 function adminpost(): void {
@@ -900,7 +900,7 @@ function delete_file_if_sizeexceeds($upfile): void {
 
 function error($str,$historyback=true): void {
 
-	global $boardname,$skindir,$en,$petit_lot;
+	global $boardname,$theme_dir,$en,$petit_lot;
 
 	$petit_lot = $petit_lot ?? time();
 
@@ -913,7 +913,7 @@ function error($str,$historyback=true): void {
 
 	$admin_pass= null;
 	$templete='error.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 //csrfトークンを作成

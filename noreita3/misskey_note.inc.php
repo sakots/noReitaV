@@ -11,7 +11,7 @@ class misskey_note{
 	//投稿済みの記事をMisskeyにノートするための前処理
 	public static function before_misskey_note (): void {
 
-		global $boardname,$home,$petit_ver,$petit_lot,$skindir,$set_nsfw,$en,$deny_all_posts;
+		global $boardname,$home,$petit_ver,$petit_lot,$theme_dir,$set_nsfw,$en,$deny_all_posts;
 		//管理者判定処理
 		session_sta();
 		catchword_required_to_view(true);
@@ -73,13 +73,13 @@ class misskey_note{
 		$admin_pass= null;
 
 		$templete='before_misskey_note.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 	//投稿済みの画像をMisskeyにNoteするための投稿フォーム
 	public static function misskey_note_edit_form(): void {
 
-		global  $petit_ver,$petit_lot,$home,$boardname,$skindir,$set_nsfw,$en,$max_kb,$use_upload;
+		global  $petit_ver,$petit_lot,$home,$boardname,$theme_dir,$set_nsfw,$en,$max_kb,$use_upload;
 
 		check_submission_interval();
 		check_same_origin();
@@ -155,13 +155,13 @@ class misskey_note{
 		$admin_pass= null;
 		// HTML出力
 		$templete='misskey_note_edit_form.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 
 	//Misskeyに投稿するSESSIONデータを作成
 	public static function create_misskey_note_sessiondata(): void {
-		global $en,$usercode,$root_url,$skindir,$petit_lot,$misskey_servers,$boardname;
+		global $en,$usercode,$root_url,$theme_dir,$petit_lot,$misskey_servers,$boardname;
 		
 		check_csrf_token();
 
@@ -225,7 +225,7 @@ class misskey_note{
 		$admin_pass= null;
 		// HTML出力
 		$templete='misskey_server_selection.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 
@@ -308,7 +308,7 @@ class misskey_note{
 	}
 	// Misskeyへの投稿が成功した事を知らせる画面
 	public static function misskey_success(): void {
-		global $en,$skindir,$boardname,$petit_lot;
+		global $en,$theme_dir,$boardname,$petit_lot;
 		$no = (string)filter_input_data('GET', 'no',FILTER_VALIDATE_INT);
 		$resid = $_SESSION['current_resid'] ?? '';
 
@@ -320,7 +320,7 @@ class misskey_note{
 		}
 		$admin_pass= null;
 		$templete='misskey_success.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 }

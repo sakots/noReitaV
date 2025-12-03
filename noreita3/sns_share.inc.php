@@ -9,7 +9,7 @@ class sns_share
 	//シェアするserverの選択画面
 	public static function set_share_server(): void
 	{
-		global $en, $skindir, $servers, $petit_lot, $boardname,$set_nsfw_hide_flag,$age_check_required_to_view;
+		global $en, $theme_dir, $servers, $petit_lot, $boardname,$set_nsfw_hide_flag,$age_check_required_to_view;
 		
 		//ShareするServerの一覧
 		//｢"ラジオボタンに表示するServer名","snsのserverのurl"｣
@@ -44,7 +44,7 @@ class sns_share
 		$admin_pass = null;
 		//HTML出力
 		$templete = 'set_share_server.html';
-		include __DIR__ . '/' . $skindir . $templete;
+		include __DIR__ . '/' . $theme_dir . $templete;
 		exit();
 	}
 

@@ -23,7 +23,7 @@ class processsearch
 	public static function search(): void
 	{
 
-		global $home, $skindir;
+		global $home, $theme_dir;
 		global $boardname, $petit_ver, $petit_lot, $set_nsfw, $en, $mark_sensitive_image;
 		global $search_images_pagedef, $search_comments_pagedef;
 
@@ -156,7 +156,7 @@ class processsearch
 		$admin_pass = null;
 		//HTML出力
 		$templete = 'search.html';
-		include __DIR__ . '/' . $skindir . $templete;
+		include __DIR__ . '/' . $theme_dir . $templete;
 		exit();
 	}
 	//検索結果の配列を取得

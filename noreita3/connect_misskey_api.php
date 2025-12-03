@@ -12,7 +12,7 @@ $lang = ($http_langs = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')
 $en= (stripos($lang,'ja')!==0);
 
 //テンプレート
-$skindir='theme/'.$skindir;
+$theme_dir='theme/'.$theme_dir;
 
 session_sta();
 

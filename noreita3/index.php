@@ -85,7 +85,7 @@ check_file(__DIR__.'/lib/lightbox/js/lightbox.min.js');
 check_file(__DIR__.'/lib/lightbox/css/lightbox.min.css');
 
 //テンプレート
-$skindir='theme/'.$skindir;
+$theme_dir='theme/'.$theme_dir;
 
 if(!$max_log) {
 	error($en ? 'The maximum number of threads has not been set.' : '最大スレッド数が設定されていません。');
@@ -746,7 +746,7 @@ function post(): void {
 //お絵かき画面
 function paint(): void {
 
-	global $boardname,$skindir,$pmax_w,$pmax_h,$pmin_w,$pmin_h,$max_px,$en;
+	global $boardname,$theme_dir,$pmax_w,$pmax_h,$pmin_w,$pmin_h,$max_px,$en;
 	global $usercode,$petit_lot,$httpsonly;
 
 	//禁止ホストをチェック
@@ -939,27 +939,27 @@ function paint(): void {
 			$tool = 'chi';
 			// HTML出力
 			$templete = 'paint_chi.html';
-			include __DIR__.'/'.$skindir.$templete;
+			include __DIR__.'/'.$theme_dir.$templete;
 			exit();
 
 		case 'tegaki':
 
 			$tool = 'tegaki';
 			$templete= 'paint_tegaki.html';
-			include __DIR__.'/'.$skindir.$templete;
+			include __DIR__.'/'.$theme_dir.$templete;
 			exit();
 		case 'axnos':
 
 			$tool = 'axnos';
 			$templete = 'paint_axnos.html';
-			include __DIR__.'/'.$skindir.$templete;
+			include __DIR__.'/'.$theme_dir.$templete;
 			exit();
 
 		case 'klecks':
 
 			$tool = 'klecks';
 			$templete ='paint_klecks.html';
-			include __DIR__.'/'.$skindir.$templete;
+			include __DIR__.'/'.$theme_dir.$templete;
 			exit();
 
 		case 'neo': //PaintBBS NEO
@@ -991,7 +991,7 @@ function paint(): void {
 			$admin_pass = null;
 			// HTML出力
 			$templete = 'paint_neo.html';
-			include __DIR__.'/'.$skindir.$templete;
+			include __DIR__.'/'.$theme_dir.$templete;
 			exit();
 
 		default:
@@ -1001,7 +1001,7 @@ function paint(): void {
 }
 // お絵かきコメント
 function paintcom(): void {
-	global $boardname,$home,$skindir,$sage_all,$en,$mark_sensitive_image;
+	global $boardname,$home,$theme_dir,$sage_all,$en,$mark_sensitive_image;
 	global $usercode,$petit_lot,$use_hide_painttime,$all_hide_painttime,$nsfw_checked,$set_all_images_to_nsfw;
 
 	catchword_required_to_view(true);
@@ -1068,14 +1068,14 @@ function paintcom(): void {
 	$admin_pass= null;
 	// HTML出力
 	$templete='paint_com.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 
 //コンティニュー前画面
 function to_continue(): void {
 
-	global $boardname,$use_diary,$set_nsfw,$skindir,$en,$password_require_to_continue;
+	global $boardname,$use_diary,$set_nsfw,$theme_dir,$en,$password_require_to_continue;
 	global $use_paintbbs_neo,$use_chickenpaint,$use_klecs,$use_tegaki,$use_axnos,$petit_lot,$elapsed_days,$max_res;
 
 	$is_badhost=is_badhost();//テンプレートの互換性のため変数名が必要
@@ -1190,7 +1190,7 @@ function to_continue(): void {
 
 	// HTML出力
 	$templete='continue.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 
@@ -1558,7 +1558,7 @@ function img_replace(): void {
 // 動画表示
 function pchview(): void {
 
-	global $boardname,$skindir,$en,$petit_lot;
+	global $boardname,$theme_dir,$en,$petit_lot;
 
 	catchword_required_to_view();
 
@@ -1609,14 +1609,14 @@ function pchview(): void {
 	}
 	$admin_pass= null;
 
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 
 }
 //削除前の確認画面
 function confirmation_before_deletion ($edit_mode=''): void {
 
-	global $boardname,$home,$petit_ver,$petit_lot,$skindir,$set_nsfw,$en;
+	global $boardname,$home,$petit_ver,$petit_lot,$theme_dir,$set_nsfw,$en;
 	global $deny_all_posts;
 
 	//禁止ホストをチェック
@@ -1694,12 +1694,12 @@ function confirmation_before_deletion ($edit_mode=''): void {
 	$admin_pass= null;
 	if($edit_mode==='delmode'){
 		$templete='before_del.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 	if($edit_mode==='editmode'){
 		$templete='before_edit.html';
-		include __DIR__.'/'.$skindir.$templete;
+		include __DIR__.'/'.$theme_dir.$templete;
 		exit();
 	}
 	error($en?'This operation has failed.':'失敗しました。');
@@ -1708,7 +1708,7 @@ function confirmation_before_deletion ($edit_mode=''): void {
 //編集画面
 function edit_form($id='',$no=''): void {
 
-	global $petit_ver,$petit_lot,$home,$boardname,$skindir,$set_nsfw,$en,$max_kb,$use_upload,$mark_sensitive_image,$use_url_input_field;
+	global $petit_ver,$petit_lot,$home,$boardname,$theme_dir,$set_nsfw,$en,$max_kb,$use_upload,$mark_sensitive_image,$use_url_input_field;
 
 	//投稿間隔をチェック
 	check_submission_interval();
@@ -1803,7 +1803,7 @@ function edit_form($id='',$no=''): void {
 	$admin_pass= null;
 	// HTML出力
 	$templete='edit_form.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 
@@ -2144,7 +2144,7 @@ function saveimage(): void {
 }
 //カタログ表示
 function catalog(): void {
-	global $home,$catalog_pagedef,$skindir,$display_link_back_to_home;
+	global $home,$catalog_pagedef,$theme_dir,$display_link_back_to_home;
 	global $boardname,$petit_ver,$petit_lot,$set_nsfw,$en,$mark_sensitive_image; 
 
 	catchword_required_to_view();
@@ -2201,13 +2201,13 @@ function catalog(): void {
 	$admin_pass= null;
 	// HTML出力
 	$templete='catalog.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 
 //通常表示
 function view(): void {
-	global $use_upload,$home,$pagedef,$dispres,$allow_comments_only,$skindir,$descriptions,$max_kb,$root_url,$use_misskey_note;
+	global $use_upload,$home,$pagedef,$dispres,$allow_comments_only,$theme_dir,$descriptions,$max_kb,$root_url,$use_misskey_note;
 	global $boardname,$max_res,$use_miniform,$use_diary,$petit_ver,$petit_lot,$set_nsfw,$use_sns_button,$deny_all_posts,$en,$mark_sensitive_image,$only_admin_can_reply; 
 	global $use_paintbbs_neo,$use_chickenpaint,$use_klecs,$use_tegaki,$use_axnos,$display_link_back_to_home,$display_search_nav,$switch_sns,$sns_window_width,$sns_window_height,$sort_comments_by_newest,$use_url_input_field;
 	global $disp_image_res,$nsfw_checked,$sitename,$fetch_articles_to_skip;
@@ -2345,7 +2345,7 @@ function view(): void {
 	$admin_pass= null;
 	// HTML出力
 	$templete='main.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
 
@@ -2441,7 +2441,7 @@ function res_view_other_works($resno): array
 
 //レス画面
 function res (): void {
-	global $use_upload,$home,$skindir,$root_url,$use_res_upload,$max_kb,$mark_sensitive_image,$only_admin_can_reply,$use_misskey_note;
+	global $use_upload,$home,$theme_dir,$root_url,$use_res_upload,$max_kb,$mark_sensitive_image,$only_admin_can_reply,$use_misskey_note;
 	global $boardname,$max_res,$petit_ver,$petit_lot,$set_nsfw,$set_nsfw_hide_flag,$age_check_required_to_view,$use_sns_button,$deny_all_posts,$sage_all,$en,$use_diary,$nsfw_checked;
 	global $use_paintbbs_neo,$use_chickenpaint,$use_klecs,$use_tegaki,$use_axnos,$display_link_back_to_home,$display_search_nav,$switch_sns,$sns_window_width,$sns_window_height,$sort_comments_by_newest,$use_url_input_field,$set_all_images_to_nsfw;
 
@@ -2567,6 +2567,6 @@ function res (): void {
 
 	$admin_pass= null;
 	$templete= $res_catalog ? 'res_catalog.html' : 'res.html';
-	include __DIR__.'/'.$skindir.$templete;
+	include __DIR__.'/'.$theme_dir.$templete;
 	exit();
 }
