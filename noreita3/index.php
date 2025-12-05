@@ -129,10 +129,10 @@ $sns_window_width = $sns_window_width ?? 600;
 $sns_window_height = $sns_window_height ?? 600;
 $use_misskey_note = $use_misskey_note ?? true;
 $sort_comments_by_newest = $sort_comments_by_newest ?? false;
-$pmin_w = $pmin_w ?? 300;//幅
-$pmin_h = $pmin_h ?? 300;//高さ
-$pdef_w = $pdef_w ?? 300;//幅
-$pdef_h = $pdef_h ?? 300;//高さ
+$p_min_w = $p_min_w ?? 300;//幅
+$p_min_h = $p_min_h ?? 300;//高さ
+$p_def_w = $p_def_w ?? 300;//幅
+$p_def_h = $p_def_h ?? 300;//高さ
 $step_of_canvas_size = $step_of_canvas_size ?? 50;
 $use_url_input_field = $use_url_input_field ?? true;
 $max_px = $max_px ?? 1024;
@@ -746,7 +746,7 @@ function post(): void {
 //お絵かき画面
 function paint(): void {
 
-	global $boardname,$theme_dir,$pmax_w,$pmax_h,$pmin_w,$pmin_h,$max_px,$en;
+	global $boardname,$theme_dir,$p_max_w,$p_max_h,$p_min_w,$p_min_h,$max_px,$en;
 	global $usercode,$petit_lot,$httpsonly;
 
 	//禁止ホストをチェック
@@ -761,10 +761,10 @@ function paint(): void {
 		error($en ? 'Unknown error' : '問題が発生しました。');
 	}
 
-	$picw = max($picw, $pmin_w); // 最低の幅チェック
-	$pich = max($pich, $pmin_h); // 最低の高さチェック
-	$picw = min($picw, $pmax_w); // 最大の幅チェック
-	$pich = min($pich, $pmax_h); // 最大の高さチェック
+	$picw = max($picw, $p_min_w); // 最低の幅チェック
+	$pich = max($pich, $p_min_h); // 最低の高さチェック
+	$picw = min($picw, $p_max_w); // 最大の幅チェック
+	$pich = min($pich, $p_max_h); // 最大の高さチェック
 
 	setcookie("appc", $app , time()+(60*60*24*30),"","",$httpsonly,true); //アプレット選択
 	setcookie("picwc", $picw , time()+(60*60*24*30),"","",$httpsonly,true); //幅
@@ -828,7 +828,7 @@ function paint(): void {
 				$img_klecks = $pchup;
 			} elseif(in_array($pchext, ['gif','jpg','jpeg','png','webp']) && in_array($mime_type, ['image/gif', 'image/jpeg', 'image/png','image/webp'])) {
 				$file_name = pathinfo($pchup,PATHINFO_FILENAME);
-				thumbnail_gd::thumb(TEMP_DIR,$pchup,$time,$pmax_w,$pmax_h,['toolarge' => true]);
+				thumbnail_gd::thumb(TEMP_DIR,$pchup,$time,$p_max_w,$p_max_h,['toolarge' => true]);
 				list($picw,$pich) = getimagesize($pchup);
 				$imgfile = $pchup;
 			} else {
@@ -917,15 +917,15 @@ function paint(): void {
 
 	//AXNOS Paint用
 	//画像の幅と高さが最大値を超えている時は、画像の幅と高さを優先する
-	$pmax_w = max($picw, $pmax_w); // 最大幅を元画像にあわせる
-	$pmax_h = max($pich, $pmax_h); // 最大高を元画像にあわせる
-	$pmax_w = min($pmax_w,1800); // 1800px以上にはならない
-	$pmax_h = min($pmax_h,1800); // 1800px以上にはならない
+	$p_max_w = max($picw, $p_max_w); // 最大幅を元画像にあわせる
+	$p_max_h = max($pich, $p_max_h); // 最大高を元画像にあわせる
+	$p_max_w = min($p_max_w,1800); // 1800px以上にはならない
+	$p_max_h = min($p_max_h,1800); // 1800px以上にはならない
 
-	$pmin_w = min($picw, $pmin_w); // 最小幅を元画像にあわせる
-	$pmin_h = min($pich, $pmin_h); // 最小高を元画像にあわせる
-	$pmin_w = max($pmin_w, 8); // 8px以下にはならない
-	$pmin_h = max($pmin_h, 8); // 8px以下にはならない
+	$p_min_w = min($picw, $p_min_w); // 最小幅を元画像にあわせる
+	$p_min_h = min($pich, $p_min_h); // 最小高を元画像にあわせる
+	$p_min_w = max($p_min_w, 8); // 8px以下にはならない
+	$p_min_h = max($p_min_h, 8); // 8px以下にはならない
 
 	$parameter_day = date("Ymd");//JavaScriptのキャッシュ制御
 
@@ -2154,26 +2154,10 @@ function catalog(): void {
 	$page=$page<0 ? 0 : $page;
 	$pagedef=$catalog_pagedef;
 
-	$fp=fopen(LOG_DIR."alllog.log","r");
 	$count_alllog=0;
 	$_res=[];
 	$out=[];
 	$oya=0;
-	while ($line = fgets($fp)) {
-		if(!trim($line)){
-			continue;
-		}
-		if($page <= $count_alllog && $count_alllog < $page+$pagedef){
-			$_res = create_res(explode("\t",trim($line)),['catalog'=>true]);//$lineから、情報を取り出す
-			$out[$oya][] = $_res;//$lineから、情報を取り出す
-			if(empty($out[$oya])){
-				unset($out[$oya]);
-			}
-			++$oya;
-		}
-		++$count_alllog;
-	}
-	fclose($fp);
 
 	//管理者判定処理
 	$admindel=admindel_valid();
@@ -2207,10 +2191,10 @@ function catalog(): void {
 
 //通常表示
 function view(): void {
-	global $use_upload,$home,$pagedef,$dispres,$allow_comments_only,$theme_dir,$descriptions,$max_kb,$root_url,$use_misskey_note;
-	global $boardname,$max_res,$use_miniform,$use_diary,$petit_ver,$petit_lot,$set_nsfw,$use_sns_button,$deny_all_posts,$en,$mark_sensitive_image,$only_admin_can_reply; 
+	global $use_upload,$home,$page_def,$dispres,$allow_comments_only,$theme_dir,$descriptions,$max_kb,$root_url,$use_misskey_note;
+	global $boardname,$max_res,$use_miniform,$use_diary,$petit_ver,$petit_lot,$set_nsfw,$use_sns_button,$deny_all_posts,$en,$mark_sensitive_image,$only_admin_can_reply;
 	global $use_paintbbs_neo,$use_chickenpaint,$use_klecs,$use_tegaki,$use_axnos,$display_link_back_to_home,$display_search_nav,$switch_sns,$sns_window_width,$sns_window_height,$sort_comments_by_newest,$use_url_input_field;
-	global $disp_image_res,$nsfw_checked,$sitename,$fetch_articles_to_skip;
+	global $disp_image_res,$nsfw_checked,$sitename,$fetch_articles_to_skip,$pdef_w,$pdef_h,$pmax_w,$pmax_h,$pmin_w,$pmin_h,$step_of_canvas_size;
 
 	catchword_required_to_view();
 	set_page_context_to_session();
@@ -2219,6 +2203,7 @@ function view(): void {
 
 	$page=(int)filter_input_data('GET','page',FILTER_VALIDATE_INT);
 	$page=$page<0 ? 0 : $page;
+	$pagedef=$page_def;
 	//管理者判定処理
 	$adminpost=adminpost_valid();
 	$admindel=admindel_valid();
